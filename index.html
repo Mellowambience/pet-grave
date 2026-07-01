@@ -1140,21 +1140,25 @@ function useVillageStation(s) {
     const heal = 18 + villageRoleCount("tend") * 4;
     G.hp = Math.min(G.hpMax, G.hp + heal);
     skills.foraging.xp += 12;
-    toast(`🌱 station tended · +${heal} health`);
+    G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.25);
+    toast(`🌱 station tended · +${heal} health · sanctuary roots deepen`);
   } else if (s.id === "guard") {
     G.guardWard = Math.min(3, (G.guardWard || 0) + 1);
     skills.combat.xp += 12;
     gainLimit(10, "guard");
-    toast("🛡 watch post lit · next hit softened");
+    G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.15);
+    toast("🛡 watch post lit · next hit softened · roots guarded");
   } else if (s.id === "scout") {
     spawnCritter(); if (villageRoleCount("scout") >= 2) spawnCritter();
     skills.exploring.xp += 12;
-    toast("🧭 scouts call softly · wild friends stir nearby");
+    G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.15);
+    toast("🧭 scouts call softly · wild friends stir nearby · paths widen");
   } else {
     const dust = 8 + villageRoleCount("gather") * 3;
     G.dust += dust;
     if (Math.random() < 0.45) grantItem(rollItem());
-    toast(`✨ gathering bowl emptied · +${dust} glowdust`);
+    G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.1);
+    toast(`✨ gathering bowl emptied · +${dust} glowdust · lantern roots fed`);
   }
   burst(s.x, s.y, s.id === "guard" ? "#ffd980" : "#7ee8b2", 18, 2.8);
   updateHUD(); saveGame();
@@ -1300,8 +1304,43 @@ function log(text, deadly) {
 function discover(id) {
   if (codex[id]) return;
   codex[id] = true;
-  if (G.started && SPECIES[id] && id !== "milo") toast(`ledger: <b>${SPECIES[id].name}</b>`);
-  log(`Discovered ${SPECIES[id].name}.`);
+  const sp = SPECIES[id];
+  if (!sp) return;
+  if (G.started && id !== "milo") {
+    const peaceful = !!sp.peaceful;
+    if (peaceful) {
+      skills.taming.xp += 4;
+      G.focusMax = Math.min(160, (G.focusMax || 100) + 1);
+      G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.12);
+      toast(`ledger: <b>${sp.name}</b> · +focus memory`);
+      log(`Discovered ${sp.name}. Its epitaph taught the sanctuary how to breathe.`);
+    } else {
+      skills.combat.xp += 5;
+      G.limit = Math.min(G.limitMax || 100, (G.limit || 0) + 6);
+      toast(`ledger: <b>${sp.name}</b> · limit remembered`);
+      log(`Discovered ${sp.name}. Its pattern sharpened your night watch.`, true);
+    }
+    updateHUD();
+  } else {
+    log(`Discovered ${sp.name}.`);
+  }
+}
+function reflectJournal() {
+  if (!G.started || journal.length < 3) { toast("📖 write a few memories first"); return false; }
+  const key = `reflect:${G.dayNum}`;
+  if (!G.story) G.story = { flags: {}, seen: [] };
+  if (!G.story.flags) G.story.flags = {};
+  if (G.story.flags[key]) { toast("📖 today's memories are already settled"); return false; }
+  G.story.flags[key] = true;
+  const depth = Math.min(8, journal.length);
+  G.focus = G.focusMax;
+  G.limit = Math.min(G.limitMax || 100, (G.limit || 0) + 8 + depth);
+  G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.35 + depth * 0.03);
+  skills.taming.xp += 4 + depth;
+  toast(`📖 memories settled · full focus · +${8 + depth} limit · tree roots deepen`, true);
+  log("You read the day's epitaphs back to the sanctuary tree.");
+  updateHUD(); renderHub(); saveGame();
+  return true;
 }
 function cleanToastText(html) {
   return String(html)
@@ -1915,8 +1954,13 @@ function renderHub() {
       });
     }
   } else {
-    b.innerHTML = `<ul id="journal-list">` + journal.map(j =>
+    const reflected = !!(G.story && G.story.flags && G.story.flags[`reflect:${G.dayNum}`]);
+    b.innerHTML = `<p style="margin:0 0 12px;color:var(--dim)">📖 recent memories can be settled once per day for focus, limit, and sanctuary tree growth.</p>
+      <button class="team-btn" id="journal-reflect" ${reflected || journal.length < 3 ? "disabled" : ""}>${reflected ? "memories settled today" : journal.length < 3 ? "need more memories" : "settle today's memories"}</button>
+      <ul id="journal-list" style="margin-top:12px">` + journal.map(j =>
       `<li class="${j.deadly ? "deadly" : ""}"><span>${j.time}</span>${j.text}</li>`).join("") + `</ul>`;
+    const bt = document.getElementById("journal-reflect");
+    if (bt && !bt.disabled) bt.addEventListener("click", reflectJournal);
   }
 }
 
@@ -2385,29 +2429,35 @@ function doDayActivity(a) {
   if (a.type === "sprout") {
     const dust = 3 + Math.floor(sanctuaryBloom() * 4) + (villageFocus() === "tend" ? 2 : 0);
     G.dust += dust; skills.foraging.xp += 8; skills.taming.xp += 3;
+    G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.2);
     G.hp = Math.min(G.hpMax, G.hp + 6 + friendBonus + (villageFocus() === "tend" ? 5 : 0));
-    toast(`${def.ico} tended a dream sprout · +${dust} glowdust`);
-    log("You helped a dream sprout push through the corruption.");
+    toast(`${def.ico} tended a dream sprout · +${dust} glowdust · tree roots spread`);
+    log("You helped a dream sprout push through the corruption. The sanctuary tree answered.");
   } else if (a.type === "dew") {
     const dust = 5 + Math.floor(skillLvl(skills.foraging.xp) / 2);
     G.dust += dust; skills.foraging.xp += 6;
-    if (Math.random() < 0.35) grantItem("salve");
-    toast(`${def.ico} gathered moon dew · +${dust} glowdust`);
+    G.focus = Math.min(G.focusMax, G.focus + 12 + friendBonus);
+    if (Math.random() < 0.35 + villageRoleCount("gather") * 0.04) grantItem("salve");
+    toast(`${def.ico} gathered moon dew · +${dust} glowdust · focus restored`);
     log("Moon dew beaded in your palm like cool starlight.");
   } else if (a.type === "root") {
     const dust = 4 + Math.floor(sanctuaryBloom() * 5) + (villageFocus() === "guard" ? 2 : 0);
     G.dust += dust; skills.exploring.xp += 5; skills.combat.xp += 3;
+    G.guardWard = Math.min(3, (G.guardWard || 0) + 1);
+    G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.3);
     burst(a.x, a.y, "#ff8fa3", 12, 2.6);
-    toast(`${def.ico} cleansed a thorn root · +${dust} glowdust`);
+    toast(`${def.ico} cleansed a thorn root · +${dust} glowdust · ward lit`);
     log("A curled thorn root relaxed, and the forest breathed easier.", true);
   } else {
     const friends = allies.concat(reserve);
     for (const p of friends) allyGainXP(p, 1);
     skills.taming.xp += 10 + friendBonus;
     G.dust += 4 + friendBonus + (villageFocus() === "tend" ? 2 : 0);
+    G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.25 + friendBonus * 0.02);
+    G.focus = G.focusMax;
     for (let i = 0; i < Math.min(10, bondedFriends().length); i++) heart(player.x + rand(-1.4, 1.4), player.y + rand(-1, 1));
-    toast(`${def.ico} garden song · the tenders remember why they came home`, true);
-    log("The pack gathered around the little garden song.");
+    toast(`${def.ico} memorial song · pack XP, full focus, roots remember`, true);
+    log("The pack gathered around the memorial song. The tree kept the rhythm.");
   }
   gainLimit(a.type === "song" ? 12 : 6, "tend");
   burst(a.x, a.y, def.col, 18, 2.8);
@@ -7112,7 +7162,7 @@ function traitsHTML(id, spec) {
 }
 
 window.__milo = {
-  G, skills, journal, codex, SPECIES, FRIENDLY_SPECIES, WILD_SPECIES, MILO_ART_STYLE_NAME, CREATURE_VARIANTS, VARIANT_IDS, variantLabel, creatureTitle, traitsHTML,
+  G, skills, journal, codex, SPECIES, FRIENDLY_SPECIES, WILD_SPECIES, MILO_ART_STYLE_NAME, CREATURE_VARIANTS, VARIANT_IDS, variantLabel, creatureTitle, traitsHTML, discover, log,
   WORLD_TREE, get worldTrees() { return worldTrees; }, plantWorldTree, nurtureTree, growWorldTrees, sanctuaryForestTier,
   treeGainXP, creditNearestTree, nearestTree, nearestSafe, nearestSafeDist, exposure, safeNodes,
   openHavens, closeHavens, renderHavens, travelTo, drawCreatureArt, drawCreatureSprite, drawGameArt, drawGameArtFrame, drawCoverArt, drawContainArt, drawSpellVfx, artReady, CREATURE_ART, PROP_ART, ENV_ART, ENV_DEPTH_PROPS, HD2D_ART, drawEnvironmentDepthProp, CHARACTER_ANIM_ART, SPELL_ART, SPELL_PROFILES, spellProfileForSpecies, spawnSpellVfx,
@@ -7127,6 +7177,7 @@ window.__milo = {
   openCamp, renderCamp, buyTalent, CLASSES, TALENTS, CAMP_UPG,
   get pshots() { return pshots; }, get spellVfx() { return spellVfx; }, get shades() { return shades; },
   saveGame, loadGame, hasSave, exportSaveString, importSaveString, toggleMenu, refreshMenuButtons, closeWin, Au, spawnCritter,
+  reflectJournal,
   activeCast, dodge, get player() { return player; },
   grantItem, useItem, quickUse, startRecall, ITEMS, rollItem, get inv() { return G.inv; },
   GEAR, equipGear, unequipSlot, grantGear, rollGear, applyGear, get gearOwned() { return G.gearOwned; },
