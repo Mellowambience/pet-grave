@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Milo v0.1 — Glow Garden</title>
+<title>Pet Grave v0.1</title>
 <style>
   :root {
-    --mint: #8cf0bf; --rose: #ff6f8d; --lav: #b5a6ff; --gold: #ffd980;
-    --ink: #17101f; --panel: rgba(30, 22, 43, .78); --line: rgba(212, 191, 255, .28);
+    --mint: #a7f0cf; --rose: #ff7f9d; --lav: #c8b6ff; --gold: #f0d08a;
+    --ink: #100b16; --panel: rgba(25, 18, 35, .82); --line: rgba(221, 204, 255, .24);
     --text: #fff7f1; --dim: rgba(255, 247, 241, .64);
   }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink);
@@ -337,16 +337,16 @@
 <canvas id="c"></canvas>
 
 <div id="hud" class="noselect">
-  <h1>MILO<span>.</span></h1>
+  <h1>PET<span>GRAVE</span></h1>
   <div class="bar"><i id="hpfill"></i><label id="hplabel">100 / 100</label></div>
   <div class="bar"><i id="xpfill"></i><label id="xplabel">LV 1</label></div>
   <div class="bar" id="focusbar"><i id="focusfill"></i></div>
   <div class="bar" id="limitbar"><i id="limitfill"></i><label id="limitlabel">LIMIT</label></div>
-  <div id="wave">the garden is calm</div>
-  <div id="dustline">0 glowdust · 0 talent pts · warlock</div>
-  <div id="goal">Goal: meet a creature, bond with it, then bring it home.</div>
+  <div id="wave">the graveyard is quiet</div>
+  <div id="dustline">0 glowdust · 0 talent pts · gravekeeper</div>
+  <div id="goal">Goal: meet a lost pet, earn its trust, then guide it to rest.</div>
 </div>
-<div id="hint" class="noselect"><b>WASD</b>/click move · <b>E</b> bond / tend / talk · <b>Q</b> limit break · <b>R</b> home · <b>Tab</b> hub</div>
+<div id="hint" class="noselect"><b>WASD</b>/click move · <b>E</b> bond / tend / talk · <b>Q</b> limit break · <b>R</b> memorial · <b>Tab</b> ledger</div>
 <div id="toasts" class="noselect"></div>
 
 <div id="hub" class="overlay">
@@ -367,7 +367,7 @@
 <div id="lvl" class="overlay">
   <div id="lvl-panel">
     <h2 id="lvl-title">LEVEL UP</h2>
-    <p>the garden offers you a gift — choose one</p>
+    <p>the lanterns offer you a gift - choose one</p>
     <div id="cards"></div>
   </div>
 </div>
@@ -388,7 +388,7 @@
 
 <div id="camp" class="overlay">
   <div id="camp-panel">
-    <h2>🔥 CAMPSITE</h2>
+    <h2>🕯 MEMORIAL</h2>
     <div class="sub" id="camp-dust">✨ 0 glowdust</div>
     <div id="camp-body"></div>
   </div>
@@ -412,9 +412,9 @@
 
 <div id="menu" class="overlay open">
   <div id="menu-panel">
-    <h1>MILO<span>.</span></h1>
-    <div class="tag">glow garden — build home, brave the rifts</div>
-    <div class="pitch">Grow a safe home garden, bond with strange little friends, then step through portals into wilder player-made worlds where the dream can fray.</div>
+    <h1>PET<span>GRAVE</span></h1>
+    <div class="tag">tiny afterlife garden — rescue lost pets, keep the lanterns lit</div>
+    <div class="pitch">Tend a moonlit graveyard for strange little spirits. Earn their trust through gentle timing duels, guide them back to the memorial fire, and let every rescued pet leave a warm mark on the grounds.</div>
     <button class="menu-btn primary" id="m-begin">▶ &nbsp;BEGIN</button>
     <button class="menu-btn" id="m-continue" style="display:none">⟳ &nbsp;CONTINUE</button>
     <button class="menu-btn" id="m-sound">🔊 &nbsp;SOUND: ON</button>
@@ -425,15 +425,15 @@
     <button class="menu-btn" id="m-import" style="display:none">📥 &nbsp;IMPORT SAVE</button>
     <button class="menu-btn" id="m-hardcore" style="display:none" aria-hidden="true"></button>
     <button class="menu-btn danger" id="m-reset" style="display:none">⚠ &nbsp;RESET SAVE</button>
-    <div class="ctrl"><b>WASD</b>/click move · <b>E</b> bond / tend / nurture tree / camp · <b>Q</b> limit break · <b>T</b> plant world tree · <b>G</b> safe-haven travel · <b>R</b> recall · <b>Tab</b> hub · <b>M</b> mute · <b>Esc</b> menu</div>
-    <div class="ver">Milo v0.1 launch build · saves locally in this browser</div>
+    <div class="ctrl"><b>WASD</b>/click move · <b>E</b> comfort / tend / read epitaph · <b>Q</b> limit break · <b>T</b> plant memory tree · <b>G</b> lantern travel · <b>R</b> recall · <b>Tab</b> ledger · <b>M</b> mute · <b>Esc</b> menu</div>
+    <div class="ver">Pet Grave v0.1 · saves locally in this browser</div>
   </div>
 </div>
 
 <div id="save-port" class="overlay">
   <div id="save-port-panel">
     <h2 id="save-port-title">📤 EXPORT SAVE</h2>
-    <p id="save-port-hint" class="hint">Copy this code to play your garden on another device or browser.</p>
+    <p id="save-port-hint" class="hint">Copy this code to carry your memorial to another device or browser.</p>
     <textarea id="save-port-text" rows="6" spellcheck="false"></textarea>
     <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
       <button id="save-port-copy" onclick="copySavePort()">📋 COPY</button>
@@ -445,9 +445,9 @@
 
 <div id="win" class="overlay">
   <div id="win-panel">
-    <h2>🌸 THE GARDEN RESTS</h2>
+    <h2>🕯 THE GRAVEYARD RESTS</h2>
     <p id="win-stats"></p>
-    <p style="font-style:italic">the night exhales. your village glows a little brighter.<br>you can keep wandering, bonding, and bringing friends home.</p>
+    <p style="font-style:italic">the night exhales. the memorial lanterns glow a little warmer.<br>you can keep wandering, bonding, and guiding lost pets to rest.</p>
     <button onclick="closeWin()">KEEP WANDERING</button>
     <br><button class="win-credits" onclick="showCredits()">✦ a word from the village</button>
   </div>
@@ -455,26 +455,26 @@
 
 <div id="credits" class="overlay">
   <div id="credits-panel">
-    <h2>🌿 MILO</h2>
-    <div class="sub">glow garden</div>
+    <h2>🕯 PET GRAVE</h2>
+    <div class="sub">a tiny afterlife garden</div>
     <p class="verse">
-      every creature you met was wary once.<br>
+      every lost pet you met was wary once.<br>
       you stayed, you listened, you offered honey<br>
-      &mdash; and one by one they chose to come home.<br><br>
+      &mdash; and one by one they chose to rest beside the lanterns.<br><br>
       nothing you love resets.<br>
-      the garden remembers.
+      the graveyard remembers.
     </p>
     <div class="divider"></div>
     <div class="role">a cozy game about</div>
-    <div class="name">exploring, bonding, and <b>bringing friends home</b></div>
-    <div class="role">creatures</div>
+    <div class="name">exploring, bonding, and <b>giving lost pets a place to rest</b></div>
+    <div class="role">lost pets</div>
     <div class="name">milo · pip · lume · mossback · ember<br>puddle · capkin · starling · fluffox · mothlet</div>
     <div class="role">built with</div>
     <div class="name">canvas, web audio, and a great deal of care</div>
     <div class="divider"></div>
     <p class="verse" style="font-size:12.5px">
       thank you for playing.<br>
-      keep the fireflies lit.
+      keep the lanterns lit.
     </p>
     <button onclick="closeCredits()">↩ &nbsp;BACK</button>
   </div>
@@ -482,8 +482,8 @@
 
 <div id="havens" class="overlay">
   <div id="havens-panel">
-    <h2>🗺 SAFE HAVENS</h2>
-    <p class="hint">fast-travel between the havens you've rooted. plant more (T) to grow the network.</p>
+    <h2>🗺 LANTERN PATHS</h2>
+    <p class="hint">fast-travel between memorial lanterns you've rooted. plant more (T) to grow the path.</p>
     <div id="havens-list"></div>
     <button onclick="closeHavens()">↩ &nbsp;BACK</button>
   </div>
@@ -491,9 +491,9 @@
 
 <div id="over" class="overlay">
   <div id="over-panel">
-    <h2>THE GLOW FADES</h2>
+    <h2>THE LANTERN DIMS</h2>
     <p id="over-stats"></p>
-    <p style="font-style:italic">milo waits beside you until the fireflies return.</p>
+    <p style="font-style:italic">Milo curls beside the stone until the lanterns wake again.</p>
     <button id="over-btn" onclick="respawn()">RISE AGAIN</button>
   </div>
 </div>
@@ -726,6 +726,7 @@ const G = {
   villageFocus: "tend",
   kills: 0, bonds: 0, wave: 0,
   surge: null, calmT: 20,
+  forestMemory: 0,
   speedMul: 1, miloDmgMul: 1, miloCdMul: 1, magnetMul: 1,
   maxAllies: 6, allyDmgMul: 1, thorns: 0, nova: 0, novaT: 0, deaths: 0,
   dust: 0, talentPts: 0, cls: "warlock", classCd: 0,
@@ -737,14 +738,14 @@ const G = {
   started: false, won: false, shake: 0, quality: "auto", artFilter: "storybook", lowFx: false, muted: false, hardcore: false,
 };
 const MILESTONE_COPY = {
-  firstFriend: "First friend found",
-  firstHome: "Village awakened",
-  fullVillage: "All known friends home",
+  firstFriend: "First pet comforted",
+  firstHome: "Memorial awakened",
+  fullVillage: "All known pets at rest",
 };
 const skills = {
-  taming:    { name: "Taming",    xp: 0, ico: "🫶" },
+  taming:    { name: "Comforting",    xp: 0, ico: "🫶" },
   combat:    { name: "Combat",    xp: 0, ico: "⚔️" },
-  foraging:  { name: "Foraging",  xp: 0, ico: "🌿" },
+  foraging:  { name: "Tending",  xp: 0, ico: "🌿" },
   exploring: { name: "Exploring", xp: 0, ico: "🧭" },
 };
 const skillLvl = xp => Math.floor(Math.pow(xp / 12, 0.6)) + 1;
@@ -851,7 +852,7 @@ const NPCS_DEF = [
     role: "botanist",
     lines: ["The glowcaps bloom brighter before a surge. Watch the dirt.",
             "Your Milo's been eyeing my satchel. Tell it the moths are NOT snacks.",
-            "Foraging tip: walk slow, take only what shimmers."],
+            "Tending tip: walk slow, take only what shimmers."],
     bubbles: ["hm, fascinating roots…", "the moths like these", "shimmer-shimmer ✿"] },
   { id: "bram", name: "Bram", color: "#9d8df1", shade: "#5f4bb6", home: { x: -3, y: 3 },
     role: "warden",
@@ -879,8 +880,8 @@ const CLASSES = {
 };
 const CAMP_UPG = {
   fire:   { name: "Eternal Fire",  ico: "🔥", costs: [100, 200, 400], tip: t => `regenerate ${3 * t} hp/s while near camp` },
-  den:    { name: "Sanctuary Den", ico: "🛖", costs: [80, 160, 320],  tip: t => `your pack hits ${15 * t}% harder` },
-  beacon: { name: "Moth Beacon",   ico: "🏮", costs: [60, 120, 240],  tip: t => `glow-mote magnet +${25 * t}%` },
+  den:    { name: "Resting Den", ico: "🛖", costs: [80, 160, 320],  tip: t => `your pack hits ${15 * t}% harder` },
+  beacon: { name: "Grave Lantern",   ico: "🏮", costs: [60, 120, 240],  tip: t => `glow-mote magnet +${25 * t}%` },
 };
 const TALENTS = {
   heart:  { name: "Heart",  ico: "💗", tiers: [
@@ -981,14 +982,14 @@ function unlockVillageUpgrade(sp) {
   return true;
 }
 const BIOME_SPAWN = {
-  "Glow Garden": { pip: 2.2, capkin: 1.6, lume: 1.4, mossback: 1.1, ember: 0.8, puddle: 0.9, starling: 1.2, fluffox: 1.0, mothlet: 1.3 },
+  "Pet Grave": { pip: 2.2, capkin: 1.6, lume: 1.4, mossback: 1.1, ember: 0.8, puddle: 0.9, starling: 1.2, fluffox: 1.0, mothlet: 1.3 },
   "Mistbog":     { puddle: 2.3, mossback: 1.7, capkin: 1.4, lume: 1.0, pip: 0.9, ember: 0.7, starling: 0.8, fluffox: 0.9, mothlet: 1.5 },
   "Emberwood":   { ember: 2.4, fluffox: 1.8, mothlet: 1.2, capkin: 1.0, pip: 0.8, lume: 0.7, mossback: 1.1, puddle: 0.6, starling: 0.9 },
   "Frostvale":   { lume: 2.0, starling: 1.9, puddle: 1.5, mothlet: 1.3, pip: 1.0, mossback: 1.1, capkin: 0.9, ember: 0.7, fluffox: 0.8 },
   "Voidreach":   { mothlet: 2.1, starling: 1.6, capkin: 1.3, ember: 1.2, fluffox: 1.1, pip: 0.9, lume: 1.0, mossback: 0.8, puddle: 1.4 },
 };
 const BIOME_FLAVOR = {
-  "Glow Garden": "Fireflies drift between the glowcaps. Something shy is watching.",
+  "Pet Grave": "Fireflies drift between small stones. Something lost is watching.",
   "Mistbog":     "The mist smells like rain on warm moss. Footprints vanish behind you.",
   "Emberwood":   "Embers crackle in hollow trees. Proud little eyes gleam from the ferns.",
   "Frostvale":   "Frost crystals chime in the breeze. The sky feels close enough to touch.",
@@ -1203,8 +1204,8 @@ function seedFirstFriendMoment(force = false) {
     discover(sp);
   }
   G.story.flags.first_guided_friend = true;
-  toast("🌿 three shy creatures gather near camp — stand close and press <b>E</b> to bond");
-  log("The first morning brought three small silhouettes to the edge of the firelight.");
+  toast("🌿 three lost pets gather by the stones - stand close and press <b>E</b> to comfort one");
+  log("The first morning brought three small spirits to the edge of the camp light.");
   updateHUD();
   return true;
 }
@@ -1299,7 +1300,7 @@ function log(text, deadly) {
 function discover(id) {
   if (codex[id]) return;
   codex[id] = true;
-  if (G.started && SPECIES[id] && id !== "milo") toast(`codex: <b>${SPECIES[id].name}</b>`);
+  if (G.started && SPECIES[id] && id !== "milo") toast(`ledger: <b>${SPECIES[id].name}</b>`);
   log(`Discovered ${SPECIES[id].name}.`);
 }
 function cleanToastText(html) {
@@ -1316,7 +1317,7 @@ function toast(html, deadly) {
   setTimeout(() => { d.style.opacity = "0"; d.style.transition = "opacity .4s"; setTimeout(() => d.remove(), 450); }, 2600);
 }
 discover("milo");
-log("You and Milo entered the Glow Garden.");
+log("You and Milo stepped into Pet Grave.");
 
 // ============================================================ AUDIO (fully procedural — no assets)
 const Au = {
@@ -1391,7 +1392,7 @@ const Au = {
       o.connect(og); og.connect(pad); o.start(); lfo.start();
       this.padOsc.push(o, lfo);
     }
-    // crickets + campfire crackle schedulers
+    // crickets + memorial fire crackle schedulers
     const tick = () => {
       if (!G.muted && G.started && !G.paused) {
         if (Math.random() < .5) {
@@ -1424,11 +1425,11 @@ function saveGame() {
       G: (({ level, xp, xpNeed, hp, hpMax, focus, limit, limitMax, kills, bonds, wave, dust, talentPts, cls, owned, camp, talents,
              trustMul, xpMul, fangMilo, fangAlly, classDmgMul, heartRegen, speedMul, miloDmgMul, miloCdMul,
              magnetMul, maxAllies, allyDmgMul, thorns, nova, deaths, won, t, quality, artFilter, muted, inv, gearOwned, equipped,
-             voidPower, canCaptureHostiles, shiniesFound, phase, tod, dayNum, nightSurges, surgesThisNight, hardcore, story, villageFocus, guardWard }) =>
+             voidPower, canCaptureHostiles, shiniesFound, phase, tod, dayNum, nightSurges, surgesThisNight, hardcore, story, villageFocus, guardWard, forestMemory }) =>
            ({ level, xp, xpNeed, hp, hpMax, focus, limit, limitMax, kills, bonds, wave, dust, talentPts, cls, owned, camp, talents,
               trustMul, xpMul, fangMilo, fangAlly, classDmgMul, heartRegen, speedMul, miloDmgMul, miloCdMul,
               magnetMul, maxAllies, allyDmgMul, thorns, nova, deaths, won, t, quality, artFilter, muted, inv, gearOwned, equipped,
-              voidPower, canCaptureHostiles, shiniesFound, phase, tod, dayNum, nightSurges, surgesThisNight, hardcore, story, villageFocus, guardWard }))(G),
+              voidPower, canCaptureHostiles, shiniesFound, phase, tod, dayNum, nightSurges, surgesThisNight, hardcore, story, villageFocus, guardWard, forestMemory }))(G),
       skills: Object.fromEntries(Object.entries(skills).map(([k, v]) => [k, v.xp])),
       codex: Object.keys(codex).filter(k => codex[k]),
       allies: allies.map(a => ({ sp: a.sp, name: a.name, variant: a.variant, dmg: a.dmg, shiny: a.shiny, legendary: a.legendary, lvl: a.lvl, xp: a.xp, stage: a.stage, friendship: a.friendship, corrupted: a.corrupted, origin: a.origin, originName: a.originName, cmd: a.cmd, holdX: a.holdX, holdY: a.holdY })),
@@ -1457,6 +1458,7 @@ function loadGame() {
     if (!VILLAGE_FOCUS[G.villageFocus]) G.villageFocus = "tend";
     if (!["storybook", "luminous", "haunted", "ink"].includes(G.artFilter)) G.artFilter = "storybook";
     G.voidPower = 0;
+    G.forestMemory = Math.max(0, G.forestMemory || 0);
     G.canCaptureHostiles = false;
     G.captureCd = 0;
     gearCd = {}; applyGear();
@@ -1502,7 +1504,7 @@ function openSavePort(mode) {
   o.dataset.mode = mode;
   el("save-port-title").textContent = mode === "export" ? "📤 EXPORT SAVE" : "📥 IMPORT SAVE";
   el("save-port-hint").textContent = mode === "export"
-    ? "Copy this code to play your garden on another device or browser."
+    ? "Copy this code to carry your memorial to another device or browser."
     : "Paste a save code from another device, then press Import.";
   if (mode === "export") {
     const code = exportSaveString();
@@ -1531,7 +1533,7 @@ function importSavePort() {
     G.started = true;
     closeSavePort();
     el("menu").classList.remove("open");
-    toast("📥 garden restored from save code", true);
+    toast("📥 camp restored from save code", true);
     Au.sfx("win");
     refreshMenuButtons();
     updateHUD();
@@ -1648,8 +1650,8 @@ el("m-continue").addEventListener("click", () => {
     G.started = true;
     el("menu").classList.remove("open");
     G.paused = uiOpen();
-    toast("🌿 welcome back — the garden remembered you");
-    log("Returned to the garden.");
+    toast("🌿 welcome back - the graveyard remembered you");
+    log("Returned to Pet Grave.");
   } else toast("save couldn't be read — starting fresh", true);
   refreshMenuButtons();
 });
@@ -1738,15 +1740,15 @@ function renderHub() {
       [{ t: "loyal" }, { t: "pouncer", d: true }, miloStage() > 1 ? { t: "evolved", d: true } : { t: "still growing" }]);
     b.insertAdjacentHTML("beforeend", `<h4 style="margin:14px 0 8px;color:var(--mint);letter-spacing:2px">ACTIVE PACK · ${allies.length}/${G.maxAllies}</h4>`);
     if (!allies.length) {
-      b.insertAdjacentHTML("beforeend", `<p style="color:var(--dim)">No pack members yet — sit near a wild creature until you see “E — bonding duel”.</p>`);
+      b.insertAdjacentHTML("beforeend", `<p style="color:var(--dim)">No rescued pets yet - stand near a lost pet until you see "E - bonding duel".</p>`);
     }
     allies.forEach((a, i) => mk(a.sp, `${a.shiny ? "🌟 " : ""}${a.name} · ${creatureTitle(a.sp, a.variant)}`,
       `Lv ${a.lvl || 1} · ${friendshipStage(a).ico} ${friendshipStage(a).name} · ${evoTitle(a.stage || 1)} · dash ${Math.round(a.dmg * (1 + (a.stage || 1) * 0.12) * G.allyDmgMul)} dmg · xp ${a.xp || 0}/${8 + (a.lvl || 1) * 5}`,
       Object.assign([{ t: roleLabel(villageRole(a.sp)) }, variantChip(a), { t: `${friendshipStage(a).ico} ${friendshipStage(a).name.toLowerCase()}` }, { t: `stage ${a.stage || 1}`, d: (a.stage || 1) > 1 }, ...(ALLY_ABIL[a.sp] ? [{ t: ALLY_ABIL[a.sp].ico + " " + ALLY_ABIL[a.sp].name }] : []), ...(a.corrupted ? [{ t: "🕳 tamed " + a.originName, d: true }] : []), ...(a.legendary ? [{ t: "✨ " + a.legendary, d: true }] : []), { t: "fighting", d: true }].filter(Boolean), { actor: a }),
       { label: "rest ⤵", fn: () => restPet(i) }, { label: "absorb ✦", fn: () => absorbPet(allies, i) }));
-    b.insertAdjacentHTML("beforeend", `<h4 style="margin:14px 0 8px;color:var(--lav);letter-spacing:2px">🏡 YOUR VILLAGE · ${allies.length + reserve.length} friends have a home here</h4>`);
+    b.insertAdjacentHTML("beforeend", `<h4 style="margin:14px 0 8px;color:var(--lav);letter-spacing:2px">🏡 MEMORIAL GROUNDS · ${allies.length + reserve.length} pets rest here</h4>`);
     if (!reserve.length) {
-      b.insertAdjacentHTML("beforeend", `<p style="color:var(--dim)">Every bonded creature adds a little sign of life around the campfire. Extra friends rest here when the active pack is full.</p>`);
+      b.insertAdjacentHTML("beforeend", `<p style="color:var(--dim)">Every rescued pet leaves a little camp sign near the lanterns. Extra pets rest here when the active pack is full.</p>`);
     }
     reserve.forEach((a, i) => mk(a.sp, `${a.shiny ? "🌟 " : ""}${a.name} · ${creatureTitle(a.sp, a.variant)}`,
       `resting · Lv ${a.lvl || 1} · ${friendshipStage(a).ico} ${friendshipStage(a).name} · ${evoTitle(a.stage || 1)} · dash ${Math.round(a.dmg * (1 + (a.stage || 1) * 0.12) * G.allyDmgMul)} dmg`,
@@ -1771,7 +1773,7 @@ function renderHub() {
     b.appendChild(rows);
     b.insertAdjacentHTML("beforeend", `<h4 style="margin:14px 0 8px;color:var(--mint);letter-spacing:2px">FRIEND ROLES</h4>`);
     for (const role of ["tend", "guard", "scout", "gather"]) {
-      b.insertAdjacentHTML("beforeend", `<div class="skillrow"><div class="top"><span>${roleLabel(role)}</span><b>${villageRoleCount(role)}</b></div><small style="color:var(--dim)">automatic help from bonded friends</small></div>`);
+      b.insertAdjacentHTML("beforeend", `<div class="skillrow"><div class="top"><span>${roleLabel(role)}</span><b>${villageRoleCount(role)}</b></div><small style="color:var(--dim)">automatic help from rescued pets</small></div>`);
     }
     const upgrades = WILD_SPECIES.filter(sp => villageUpgradeUnlocked(sp));
     if (upgrades.length) {
@@ -1964,7 +1966,7 @@ function tryTalk() {
   if (station) { useVillageStation(station); return; }
   const friend = nearestHomeFriend();
   if (friend) { interactHomeFriend(friend); return; }
-  // campfire menu after specific village interactions
+  // memorial fire menu after specific village interactions
   if (dist(player.x, player.y, 0, 0) < 2.6) { openCamp(); return; }
   // nurture a nearby World Tree with glowdust
   { const t = nearestTree(player.x, player.y, 2.4); if (t) { nurtureTree(t); return; } }
@@ -2050,7 +2052,7 @@ function maybeVillageGift(p) {
     toast(`🏡 ${p.name} found ${dust} glowdust near home`);
   } else {
     grantItem(rollItem());
-    toast(`🏡 ${p.name} left a little gift by the campfire`);
+    toast(`🏡 ${p.name} left a little gift by the memorial fire`);
   }
   heart(p.x, p.y); updateHUD(); saveGame();
   addFriendship(p, 3, "a little gift");
@@ -2111,7 +2113,7 @@ function maybeFirstHomecoming() {
   gainLimit(20, "homecoming");
   toast(`🏡 <b>First homecoming</b> — ${friends} friend${friends === 1 ? "" : "s"} settled by the fire · +12 glowdust`, true);
   log("The village became real: a bonded friend had a place to come home to.", true);
-  log(`${MILESTONE_COPY.firstHome}: the campfire gained lanterns, paths, and a place for every friend.`, true);
+  log(`${MILESTONE_COPY.firstHome}: the memorial fire gained lanterns, paths, and a place for every friend.`, true);
   for (const p of allies.concat(reserve).slice(0, 4)) {
     p.homeMood = "play";
     p.homeT = rand(8, 13);
@@ -2128,15 +2130,15 @@ function maybeFirstHomecoming() {
 }
 
 function nextGoalText() {
-  if (!G.started) return "Goal: meet a creature, bond with it, then bring it home.";
+  if (!G.started) return "Goal: meet a lost pet, earn its trust, then guide it to rest.";
   const friends = bondedFriends().length - 1;
-  if (friends <= 0) return "Goal: three shy creatures wait near the firelight. Stand close and press E for a bonding duel.";
+  if (friends <= 0) return "Goal: three lost pets wait near the firelight. Stand close and press E to comfort one.";
   if (!G.story.flags.first_homecoming) return `Goal: press R to bring ${friends === 1 ? "your new friend" : "your friends"} home and watch the village wake up.`;
-  if (dist(player.x, player.y, 0, 0) > 4.5) return `Goal: press R to return home and see ${friends} friend${friends === 1 ? "" : "s"} around camp.`;
+  if (dist(player.x, player.y, 0, 0) > 4.5) return `Goal: press R to return home and see ${friends} friend${friends === 1 ? "" : "s"} around the memorial.`;
   const tasks = G.phase === "day" ? pendingDayActivities().length : 0;
   if (tasks) return `Goal: tend ${tasks} glowing garden task${tasks === 1 ? "" : "s"} with E, then meet another friend.`;
   if (friends < WILD_SPECIES.length) return `Goal: ${friends}/${WILD_SPECIES.length} friends home. Explore, bond, and grow the village.`;
-  return "Goal: all known friends have a home here. Keep wandering, evolving, and tending the garden.";
+  return "Goal: all known pets rest here. Keep wandering, evolving, and tending the garden.";
 }
 
 function limitReady() { return G.limit >= (G.limitMax || 100); }
@@ -2175,7 +2177,7 @@ function updateHUD() {
   el("limitfill").style.width = (G.limitT > 0 ? (G.limitT / 9 * 100) : ((G.limit || 0) / (G.limitMax || 100) * 100)) + "%";
   el("limitlabel").textContent = G.limitT > 0 ? `LIMIT ${Math.ceil(G.limitT)}s` : (limitReady() ? "Q LIMIT READY" : "LIMIT");
   el("limitbar").classList.toggle("ready", limitReady() || G.limitT > 0);
-  el("dustline").textContent = `${G.dust} glowdust · ${G.talentPts} talent pts · ${CLASSES[G.cls].name.toLowerCase()}`;
+  el("dustline").textContent = `${G.dust} glowdust · ${G.talentPts} talent pts · tree tier ${sanctuaryForestTier()} · ${CLASSES[G.cls].name.toLowerCase()}`;
   el("goal").textContent = nextGoalText();
 }
 
@@ -2189,7 +2191,14 @@ function renderCamp() {
   el("camp-dust").textContent = `✨ ${G.dust} glowdust — earned from corrupted kills, surge clears, and bonds`;
   const b = el("camp-body");
   b.innerHTML = "";
-  b.insertAdjacentHTML("beforeend", `<h3>Callings — swap freely once learned</h3>`);
+  b.insertAdjacentHTML("beforeend", `<h3>Sanctuary tree</h3>
+    <div class="shop-card equipped">
+      <div class="ico">🌳</div>
+      <div class="info"><h4>Tier ${sanctuaryForestTier()} · expanding forest</h4>
+      <p>${G.forestMemory || 0} night ring${(G.forestMemory || 0) === 1 ? "" : "s"} remembered · each dawn widens the safe woods around Pet Grave.</p></div>
+      <button disabled>growing</button>
+    </div>`);
+  b.insertAdjacentHTML("beforeend", `<h3>Callings - swap freely once learned</h3>`);
   for (const id in CLASSES) {
     const C = CLASSES[id];
     const owned = !!G.owned[id], equipped = G.cls === id;
@@ -2209,7 +2218,7 @@ function renderCamp() {
       }); }
     d.appendChild(bt); b.appendChild(d);
   }
-  b.insertAdjacentHTML("beforeend", `<h3>Camp upgrades</h3>`);
+  b.insertAdjacentHTML("beforeend", `<h3>Memorial upgrades</h3>`);
   for (const id in CAMP_UPG) {
     const U = CAMP_UPG[id], tier = G.camp[id], maxed = tier >= U.costs.length;
     const cost = maxed ? 0 : U.costs[tier];
@@ -2286,12 +2295,22 @@ function buyTalent(branch) {
 const picked = new Map(); // "x,y" -> respawn time
 function sanctuaryBloom() {
   const n = (allies ? allies.length : 0) + (reserve ? reserve.length : 0);
-  return clamp(n / 9, 0, 1);
+  const friendBloom = clamp(n / 9, 0, 1);
+  const forestBloom = clamp((G.forestMemory || 0) / 8, 0, 1);
+  return clamp(friendBloom * 0.78 + forestBloom * 0.42, 0, 1);
 }
-function sanctuaryStage() { return Math.min(4, Math.floor(sanctuaryBloom() * 4.01)); }
+function sanctuaryForestTier() {
+  return Math.min(5, 1 + Math.floor((G.forestMemory || 0) / 2));
+}
+function sanctuaryStage() {
+  const n = (allies ? allies.length : 0) + (reserve ? reserve.length : 0);
+  const friendStage = Math.min(4, Math.floor(clamp(n / 9, 0, 1) * 4.01));
+  return Math.min(5, Math.max(friendStage, sanctuaryForestTier(), Math.floor(sanctuaryBloom() * 5.01)));
+}
 function sanctuaryNear(gx, gy) {
   const d = Math.hypot(gx, gy);
-  return clamp(1 - (d - 2) / 13, 0, 1);
+  const reach = 13 + Math.min(14, (G.forestMemory || 0) * 1.7) + sanctuaryStage() * 0.7;
+  return clamp(1 - (d - 2) / reach, 0, 1);
 }
 function corruptionAt(gx, gy) {
   const noise = hash2(gx * 5 - 17, gy * 5 + 29);
@@ -2315,7 +2334,7 @@ function drawTileDiamond(s, z, fill, stroke) {
 function floraAt(gx, gy) {
   const bloom = sanctuaryBloom() * sanctuaryNear(gx, gy);
   const r = (hash2(gx, gy) * 97.13) % 1;
-  const threshold = 0.935 - bloom * 0.18;
+  const threshold = 0.935 - bloom * 0.18 - clamp((G.forestMemory || 0) / 18, 0, 0.12);
   if (r <= threshold) return 0;
   return r > 0.975 - bloom * 0.08 ? 2 : 1;
 }
@@ -2573,10 +2592,10 @@ function startRecall() {
   if (G.over || !G.started || G.recallT > 0) return;
   if (G.recallCd > 0) { toast(`✨ recall recharging (${Math.ceil(G.recallCd)}s)`); return; }
   const ns = nearestSafe(player.x, player.y);
-  if (ns.d < 3) { toast(ns.node && !ns.node.home ? "🌳 you're already at a world tree" : "🔥 you're already at the campfire"); return; }
+  if (ns.d < 3) { toast(ns.node && !ns.node.home ? "🌳 you're already at a memory tree" : "🕯 you're already at the memorial sanctuary"); return; }
   G.recallTarget = ns.node && !ns.node.home ? { x: ns.node.x, y: ns.node.y, home: false } : { x: 0, y: 0, home: true };
   G.recallT = 1.4; player.target = null;
-  toast(G.recallTarget.home ? "✨ recalling to camp — hold still" : "✨ recalling to the nearest world tree — hold still");
+  toast(G.recallTarget.home ? "✨ recalling to the memorial — hold still" : "✨ recalling to the nearest memory tree — hold still");
   Au.sfx("ui");
 }
 
@@ -2625,11 +2644,15 @@ function startDay() {
   G.dayNum++; G.phase = "day"; G.tod = 0;
   G.surge = null; enemies = []; shots = [];
   const reward = 20 + G.dayNum * 8;
+  const oldTier = sanctuaryForestTier();
+  G.forestMemory = Math.min(99, (G.forestMemory || 0) + 1);
+  const newTier = sanctuaryForestTier();
   G.dust += reward;
   G.hp = Math.min(G.hpMax, G.hp + G.hpMax * 0.4);
   const biome = curBiome();
-  toast(`☀ <b>Dawn of day ${G.dayNum}</b> — you weathered the night · +${reward} ✨<br>you've wandered into the <b>${biome.name}</b>`, true);
-  log(`Dawn breaks on day ${G.dayNum}. You've wandered into the ${biome.name}.`, true);
+  const growthCopy = newTier > oldTier ? `<br>the sanctuary tree reaches <b>Tier ${newTier}</b> and the forest pushes outward` : `<br>the sanctuary tree adds another ring to the forest`;
+  toast(`☀ <b>Dawn of day ${G.dayNum}</b> — you weathered the night · +${reward} ✨${growthCopy}<br>you've wandered into the <b>${biome.name}</b>`, true);
+  log(`Dawn breaks on day ${G.dayNum}. The sanctuary tree grows to forest memory ${G.forestMemory}, widening Pet Grave's restored woods.`, true);
   maybeBiomeFlavor();
   for (const p of allies.concat(reserve)) addFriendship(p, 2, "a new day together");
   growWorldTrees();
@@ -2687,7 +2710,7 @@ const STORY = [
         apply: () => { G.allyDmgMul *= 1.2; for (let i = 0; i < 3; i++) setTimeout(spawnCritter, 200 * i); } },
     ] },
   { id: "ruthless_path", day: 6, cond: f => f.purge || f.steady, title: "🌙 The Quiet Path",
-    text: "Every hard choice has taught you where fear lives in the garden. Tonight, the campfire makes room for that knowledge.",
+    text: "Every hard choice has taught you where fear lives in the garden. Tonight, the memorial fire makes room for that knowledge.",
     choices: [
       { label: "🦷 <b>Practice until your hands stop shaking.</b>", result: "The pack trusts your steadiness (+15% damage).",
         apply: () => { G.classDmgMul *= 1.15; } },
@@ -2695,7 +2718,7 @@ const STORY = [
   { id: "heart", day: 8, title: "💗 The Garden's Heart",
     text: "Deep beneath the Voidreach you find it: a slow-beating heart of light and rot, the source of every surge. It speaks in a voice like wind through petals, and offers a bargain.",
     choices: [
-      { label: "🌸 <b>Soothe it.</b> Hum the campfire song to the world itself.", flag: "soothed_heart",
+      { label: "🌸 <b>Soothe it.</b> Hum the memorial fire song to the world itself.", flag: "soothed_heart",
         result: "It calms — for now. The garden breathes with you (+60 max HP, +regen).",
         apply: () => { G.hpMax += 60; G.hp = G.hpMax; G.heartRegen += 1; } },
       { label: "🦷 <b>Stand guard.</b> Let the pack see you refuse to run.", flag: "stood_guard",
@@ -2869,7 +2892,7 @@ function respawn() {
   el("over").classList.remove("open");
   G.paused = uiOpen();
   updateHUD();
-  toast("🔥 you wake at the campfire — the whole pack is here");
+  toast("🔥 you wake at the memorial fire — the whole pack is here");
   log("The glow faded… and came back. Your pack never left.", true);
   saveGame();
 }
@@ -2893,7 +2916,7 @@ function update(dt) {
   for (const fx of spellVfx) fx.t += dt;
   spellVfx = spellVfx.filter(fx => fx.t < fx.life);
 
-  // recall channel — warp to the campfire if you hold still
+  // recall channel — warp to the memorial fire if you hold still
   if (G.recallT > 0) {
     const moving = keys.has("w") || keys.has("a") || keys.has("s") || keys.has("d") || mouse.down || player.target;
     if (moving) { G.recallT = 0; toast("…recall interrupted"); }
@@ -2905,7 +2928,7 @@ function update(dt) {
         player.x = rt.x; player.y = rt.home ? -1 : rt.y; player.vx = player.vy = 0; player.target = null;
         cam.x = player.x; cam.y = player.y; G.recallCd = 18;
         burst(player.x, player.y, "#ffd166", 18, 2.6); shake(0.5); Au.sfx("win");
-        toast(rt.home ? "🔥 home at the campfire" : "🌳 arrived at the world tree");
+        toast(rt.home ? "🕯 home at the memorial sanctuary" : "🌳 arrived at the memory tree");
         if (rt.home) npcReact("home");
       }
     }
@@ -3088,7 +3111,7 @@ function update(dt) {
   }
   shades = shades.filter(s => s.life > 0);
 
-  // ---------- regen: campfire warmth + warm blood ----------
+  // ---------- regen: memorial fire warmth + warm blood ----------
   let regen = G.heartRegen + G.gearStats.regen;
   if (G.camp.fire > 0 && dist(player.x, player.y, 0, 0) < 6) regen += 3 * G.camp.fire;
   { const ns = nearestSafe(player.x, player.y); if (ns.node && !ns.node.home && ns.d < ns.node.radius) regen += WORLD_TREE.regen(ns.node.level); }
@@ -3134,7 +3157,7 @@ function update(dt) {
     if (!a.cmd) a.cmd = "follow";
     if (a.cmdCd === undefined) a.cmdCd = rand(6, 14);
     if (atVillage) {
-      // work, gather, and lounge near the campfire - home, safe, content
+      // work, gather, and lounge near the memorial fire - home, safe, content
       const work = villageWorkTarget(a, i, false);
       const hAng = i * 2.39996, hR = 2.0 + (i % 3) * 0.8;
       a.homeT = (a.homeT || rand(2, 6)) - dt;
@@ -3513,7 +3536,7 @@ function say(n, text) { bubbles.push({ n, text, t: 0 }); }
 // ---------- smarter NPCs: contextual reactions to what the player does ----------
 const NPC_REACT = {
   bond:  { fern: ["a new friend! hello, little one ✿", "the garden grows kinder"], bram: ["another to guard. good.", "it'll earn its keep, i hope"], lyra: ["the codex remembers this one", "a new name for the legends"] },
-  plant: { fern: ["a world tree! it'll mend the soil", "roots like that heal everything"], bram: ["safe ground out there now. smart.", "a place to fall back to"], lyra: ["the old groves return, one by one"] },
+  plant: { fern: ["a memory tree! it'll mend the soil", "roots like that heal everything"], bram: ["safe ground out there now. smart.", "a place to fall back to"], lyra: ["the old groves return, one by one"] },
   level: { fern: ["you're glowing brighter today", "milo's proud, i can tell"], bram: ["stronger. the night fears you", "good form out there"], lyra: ["your legend lengthens, dear"] },
   home:  { fern: ["welcome back to the fire ✿", "tea's warm if you want it"], bram: ["you made it. you always do", "rest. you've earned it"], lyra: ["sit — i've a tale for you"] },
   night: { fern: ["stay near the light, please", "i don't like the dark out there"], bram: ["eyes up. they're coming", "to the fire, all of you!"], lyra: ["the dream thins at night…"] },
@@ -3627,10 +3650,10 @@ function applyAction(i, mult, match, tier) {
   } else { // soothe
     b.fear = Math.max(0, b.fear - 22); b.trust += G.trustMul * 6;
     G.hp = Math.min(G.hpMax, G.hp + 6); updateHUD();
-    setBText(`you hum the campfire song. everyone breathes. (−fear, +6 trust)`);
+    setBText(`you hum the memorial fire song. everyone breathes. (−fear, +6 trust)`);
     bHearts(anchors.A.x, anchors.A.y - 30, 3);
   }
-  // skill scaling — timing scales the trust & moxie shifts; Taming skill boosts trust gains
+  // skill scaling — timing scales the trust & moxie shifts; Comforting skill boosts trust gains
   b.trust = tBefore + (b.trust - tBefore) * mult * (1 + (skillLvl(skills.taming.xp) - 1) * 0.04);
   b.moxie = mBefore + (b.moxie - mBefore) * mult;
   if (match) b.trust += G.trustMul * 12 * mult;
@@ -3716,7 +3739,7 @@ function enterEnd(outcome) {
     setTimeout(spawnCritter, 5000);
     log(`A ${b.spec.name} fled the duel.`, true);
   } else if (outcome === "faint") {
-    setBText(`your knees give out. milo drags you back to the campfire…`);
+    setBText(`your knees give out. milo drags you back to the memorial fire…`);
     log("You fainted mid-duel. Milo dragged you home.", true);
   } else { // retreat
     setBText(`you back away slowly. the <b>${b.spec.name}</b> watches you go.`);
@@ -3908,7 +3931,7 @@ function absorbPet(list, idx) {
   const a = list[idx]; if (!a) return;
   const power = (a.lvl || 1) + (a.stage || 1) * 3 + (a.legendary ? 10 : 0);
   const rewards = [
-    { ico: "✨", name: `+${20 + power * 6} glowdust`, desc: "Pure essence for the campfire.", apply: () => { G.dust += 20 + power * 6; } },
+    { ico: "✨", name: `+${20 + power * 6} glowdust`, desc: "Pure essence for the memorial fire.", apply: () => { G.dust += 20 + power * 6; } },
     { ico: "🦷", name: "+8% permanent damage", desc: "The pack remembers their gift.", deadly: true, apply: () => { G.classDmgMul *= 1.08; } },
     { ico: "💗", name: `+${10 + power * 2} max health`, desc: "Their warmth stays with you.", apply: () => { G.hpMax += 10 + power * 2; G.hp = G.hpMax; } },
     { ico: "🫶", name: "+8% duel trust", desc: "A gentler hand for the next bond.", apply: () => { G.trustMul *= 1.08; } },
@@ -3956,12 +3979,12 @@ function bondCreature(c) {
   }
   if (allies.length < G.maxAllies) {
     allies.push(pet);
-    toast(`🫶 <b>${pet.name}</b> the ${creatureTitle(c.sp, pet.variant)} bonded — it fights beside you and has a home by the campfire`);
+    toast(`🫶 <b>${pet.name}</b> the ${creatureTitle(c.sp, pet.variant)} bonded — it fights beside you and has a home by the memorial fire`);
     log(`Bonded with ${pet.name} the ${creatureTitle(c.sp, pet.variant)}. It joined the active pack and moved into the village.`);
   } else {
     reserve.push(pet);
     toast(`🏡 <b>${pet.name}</b> the ${creatureTitle(c.sp, pet.variant)} moved into your village — go home to visit (Tab → Team to deploy)`);
-    log(`${pet.name} the ${creatureTitle(c.sp, pet.variant)} bonded and moved into the village by the campfire.`);
+    log(`${pet.name} the ${creatureTitle(c.sp, pet.variant)} bonded and moved into the village by the memorial fire.`);
   }
   unlockVillageUpgrade(c.sp);
   updateHUD();
@@ -4809,7 +4832,7 @@ function drawPlayerArt(sx, sy, R) {
 
 // ============================================================ scene drawing
 const BIOMES = [
-  { name: "Glow Garden", bg: "#201832", sky: ["#46325f", "#211934", "#120d1f"], accent: "140,240,191", warm: "255,217,128",
+  { name: "Pet Grave", bg: "#201832", sky: ["#46325f", "#211934", "#120d1f"], accent: "140,240,191", warm: "255,217,128",
     ground: ["#4f4160", "#473a57", "#40344f", "#392e47"], moss: "rgba(140,240,191,.13)", grass: "rgba(154,220,169,.78)", petal: "255,166,190" },
   { name: "Mistbog",     bg: "#173033", sky: ["#315867", "#183c43", "#0d1d24"], accent: "125,236,212", warm: "189,247,255",
     ground: ["#355861", "#2f4f58", "#294851", "#233f48"], moss: "rgba(120,216,180,.15)",  grass: "rgba(132,199,164,.76)", petal: "183,247,255" },
@@ -5993,6 +6016,26 @@ function drawSanctuaryGenesis(stage, bloom) {
   const z = zoom;
   if (p.x < -120 || p.x > W + 120 || p.y < -120 || p.y > H + 120) return;
   cx.save();
+  const forestMemory = G.forestMemory || 0;
+  const forestTier = sanctuaryForestTier();
+  const groveCount = Math.min(28, 4 + forestMemory * 3 + stage * 2);
+  for (let i = 0; i < groveCount; i++) {
+    const a = i * 2.39996 + hash2(i, 44) * 0.5;
+    const ring = 3.4 + (i % Math.max(3, forestTier + 2)) * (1.6 + forestTier * 0.18) + Math.floor(i / 7) * 1.1;
+    const gx = Math.cos(a) * ring;
+    const gy = Math.sin(a) * ring * 0.68;
+    const s = w2s(gx, gy);
+    if (s.x < -60 || s.x > W + 60 || s.y < -70 || s.y > H + 70) continue;
+    const h = (14 + forestTier * 4 + hash2(i, 8) * 12) * z;
+    const w = (6 + forestTier * 1.5 + hash2(i, 9) * 5) * z;
+    cx.globalAlpha = 0.18 + bloom * 0.12;
+    cx.fillStyle = i % 3 === 0 ? "#6fc79a" : i % 3 === 1 ? "#8ddfb7" : "#a3cfbc";
+    cx.beginPath(); cx.ellipse(s.x, s.y - h * 0.55, w, h * 0.48, 0, 0, 7); cx.fill();
+    cx.globalAlpha = 0.34 + bloom * 0.16;
+    cx.strokeStyle = "#574062"; cx.lineWidth = Math.max(0.7, 1.2 * z);
+    cx.beginPath(); cx.moveTo(s.x, s.y); cx.lineTo(s.x + Math.sin(a) * 2 * z, s.y - h * 0.78); cx.stroke();
+  }
+  cx.globalAlpha = 1;
   for (let i = 0; i < stage; i++) {
     const r = (34 + i * 18 + Math.sin(G.t * 1.2 + i) * 2) * z;
     cx.strokeStyle = `rgba(126,232,178,${0.13 + bloom * 0.08})`;
@@ -6018,20 +6061,21 @@ function drawSanctuaryGenesis(stage, bloom) {
     const sway = Math.sin(G.t * 0.6) * 2*z;
     cx.fillStyle = "#4b3153";
     cx.beginPath();
-    cx.moveTo(p.x - 4*z, p.y + 1*z);
-    cx.quadraticCurveTo(p.x - 2*z, p.y - 28*z, p.x + sway, p.y - 46*z);
-    cx.quadraticCurveTo(p.x + 5*z, p.y - 28*z, p.x + 4*z, p.y + 1*z);
+    const treeScale = 1 + forestTier * 0.16;
+    cx.moveTo(p.x - (5 + forestTier) * z, p.y + 1*z);
+    cx.quadraticCurveTo(p.x - 3*z, p.y - 32*z * treeScale, p.x + sway, p.y - 54*z * treeScale);
+    cx.quadraticCurveTo(p.x + (6 + forestTier) * z, p.y - 32*z * treeScale, p.x + (5 + forestTier) * z, p.y + 1*z);
     cx.closePath(); cx.fill();
-    const leaves = stage >= 4 ? 6 : stage >= 3 ? 4 : 2;
+    const leaves = stage >= 5 ? 10 : stage >= 4 ? 7 : stage >= 3 ? 4 : 2;
     for (let k = 0; k < leaves; k++) {
       const a = k / leaves * Math.PI * 2 + G.t * 0.08;
-      const lx = p.x + Math.cos(a) * (10 + stage * 3) * z + sway;
-      const ly = p.y - (42 + Math.sin(a) * 8 + stage * 4) * z;
-      const leaf = cx.createRadialGradient(lx, ly, 1*z, lx, ly, (11 + stage * 2) * z);
+      const lx = p.x + Math.cos(a) * (12 + stage * 4 + forestTier * 2) * z + sway;
+      const ly = p.y - (48 + Math.sin(a) * 10 + stage * 5 + forestTier * 3) * z;
+      const leaf = cx.createRadialGradient(lx, ly, 1*z, lx, ly, (12 + stage * 2 + forestTier) * z);
       leaf.addColorStop(0, `rgba(214,255,210,${0.65 + bloom * 0.2})`);
       leaf.addColorStop(1, `rgba(69,145,103,${0.35 + bloom * 0.16})`);
       cx.fillStyle = leaf;
-      cx.beginPath(); cx.ellipse(lx, ly, (10 + stage) * z, (6 + stage) * z, a * 0.4, 0, 7); cx.fill();
+      cx.beginPath(); cx.ellipse(lx, ly, (11 + stage + forestTier) * z, (7 + stage) * z, a * 0.4, 0, 7); cx.fill();
     }
   }
   if (stage >= 3) {
@@ -6045,6 +6089,22 @@ function drawSanctuaryGenesis(stage, bloom) {
       cx.beginPath(); cx.arc(x, y, (1.4 + hash2(k, 11) * 1.6) * z, 0, 7); cx.fill();
     }
     cx.globalCompositeOperation = "source-over";
+  }
+  if (stage >= 4 && !G.lowFx) {
+    cx.globalCompositeOperation = "screen";
+    const halo = cx.createRadialGradient(p.x, p.y - 72*z, 4*z, p.x, p.y - 72*z, (34 + forestTier * 8) * z);
+    halo.addColorStop(0, "rgba(255,240,168,.28)");
+    halo.addColorStop(1, "rgba(255,240,168,0)");
+    cx.fillStyle = halo; cx.beginPath(); cx.arc(p.x, p.y - 72*z, (34 + forestTier * 8) * z, 0, 7); cx.fill();
+    cx.globalCompositeOperation = "source-over";
+  }
+  if (stage >= 1) {
+    cx.font = `700 ${Math.max(10, 10*z)}px ui-sans-serif, system-ui`;
+    cx.textAlign = "center"; cx.textBaseline = "middle";
+    cx.fillStyle = "rgba(16,11,22,.62)";
+    cx.fillText(`SANCTUARY TREE · TIER ${forestTier}`, p.x + 1*z, p.y - (88 + forestTier * 6) * z + 1*z);
+    cx.fillStyle = "#fff0a8";
+    cx.fillText(`SANCTUARY TREE · TIER ${forestTier}`, p.x, p.y - (88 + forestTier * 6) * z);
   }
   cx.restore();
 }
@@ -6108,7 +6168,7 @@ function drawDayActivities() {
 }
 
 function drawCamp() {
-  // campfire at origin-ish + tents at npc homes
+  // memorial fire at origin-ish + tents at npc homes
   const fire = w2s(0, 0);
   const bloom = sanctuaryBloom(), stage = sanctuaryStage();
   drawHomePaths();
@@ -6654,6 +6714,8 @@ function controllerState() {
     },
     villageFriends: bondedFriends().length, sanctuaryStage: sanctuaryStage(),
     sanctuaryBloom: Math.round(sanctuaryBloom() * 100) / 100,
+    forestMemory: G.forestMemory || 0,
+    sanctuaryForestTier: sanctuaryForestTier(),
     friendCommands: allies.map(a => a.cmd || "follow"),
     villageWorkers: allies.concat(reserve).filter(a => a.workRole).length,
     variants: allies.concat(reserve).map(a => a.variant || "garden"),
@@ -6870,7 +6932,7 @@ mountCodexController();
 
 // debug/testing handle (harmless in normal play)
 // ============================================================ WORLD TREES — expansion safe-havens
-// One plantable thing (the whole expansion fantasy): a portable campfire you root in the wild.
+// One plantable thing (the whole expansion fantasy): a portable memorial fire you root in the wild.
 // Each tree is a safe node — it heals, you can fast-travel to it, the wild calms around it,
 // it levels up as you live near it, and it restores the forest. The further from any safe node,
 // the more dangerous & the more the world tightens (agoraphobia made into map progression:
@@ -6890,14 +6952,14 @@ const WORLD_TREE = {
   dawnXP:     25,                             // passive restoration each dawn
   tendCost:   lvl => 30 + lvl * 20,           // glowdust to nurture (E near a tree)
   tendXP:     40,
-  name:       lvl => ["Sapling", "Sprout", "Young Tree", "Elder Tree", "World Tree"][Math.min(lvl, 5) - 1] || `Tree Lv ${lvl}`,
+  name:       lvl => ["Memory Sapling", "Grave Sprout", "Lantern Tree", "Elder Grove", "Sanctuary Tree"][Math.min(lvl, 5) - 1] || `Tree Lv ${lvl}`,
 };
 let worldTrees = [];
 function treeRadius(t) { return WORLD_TREE.radius(t.level); }
 function makeTree(o) { const t = { x: o.x, y: o.y, level: o.level || 1, xp: o.xp || 0, planted: o.planted || 0 }; t.radius = treeRadius(t); return t; }
-// the campfire at origin is always a (max-level, immovable) safe node
+// the memorial fire at origin is always a (max-level, immovable) safe node
 function safeNodes() {
-  const nodes = [{ x: 0, y: 0, home: true, level: WORLD_TREE.maxLevel, radius: 6, name: "Campfire" }];
+  const nodes = [{ x: 0, y: 0, home: true, level: sanctuaryForestTier(), radius: 6 + Math.min(10, (G.forestMemory || 0) * 0.7), name: "Memorial Sanctuary" }];
   for (const t of worldTrees) nodes.push(t);
   return nodes;
 }
@@ -6919,8 +6981,8 @@ function treeGainXP(t, amt) {
   if (t.level >= WORLD_TREE.maxLevel) t.xp = 0;
   if (leveled) {
     burst(t.x, t.y, "#bdf7ff", 20, 2.2);
-    toast(`🌳 a World Tree grew to <b>Lv ${t.level} · ${WORLD_TREE.name(t.level)}</b> — its safe haven widened`, true);
-    log(`A World Tree reached level ${t.level} (${WORLD_TREE.name(t.level)}). The restored ground spread wider.`);
+    toast(`🌳 a Memory Tree grew to <b>Lv ${t.level} · ${WORLD_TREE.name(t.level)}</b> — its safe haven widened`, true);
+    log(`A Memory Tree reached level ${t.level} (${WORLD_TREE.name(t.level)}). The restored ground spread wider.`);
   }
   return leveled;
 }
@@ -6932,20 +6994,20 @@ function creditNearestTree(x, y, amt) {   // only a tree close to the action ben
 function plantWorldTree() {
   if (G.over || !G.started || uiOpen()) return false;
   if (G.surge) { toast("can't plant during a surge!", true); return false; }
-  if (G.dust < WORLD_TREE.plantCost) { toast(`🌱 need ✨${WORLD_TREE.plantCost} glowdust to plant a world tree`, true); return false; }
+  if (G.dust < WORLD_TREE.plantCost) { toast(`🌱 need ✨${WORLD_TREE.plantCost} glowdust to plant a memory tree`, true); return false; }
   if (nearestSafe(player.x, player.y).d < WORLD_TREE.minGap) { toast("🌳 too close to another safe haven — wander further out", true); return false; }
   G.dust -= WORLD_TREE.plantCost;
   const t = makeTree({ x: player.x, y: player.y, planted: G.dayNum });
   worldTrees.push(t);
   burst(t.x, t.y, "#7ee8b2", 24, 2.4); shake(0.4); Au.sfx("win");
-  toast("🌳 <b>World Tree planted</b> — a new safe haven takes root.<br>defend it, nurture it (E), and it will grow.", true);
-  log("You planted a World Tree in the wild. Around it, the dark begins to retreat.", true);
+  toast("🌳 <b>Memory Tree planted</b> — a new safe haven takes root.<br>defend it, nurture it (E), and it will grow.", true);
+  log("You planted a Memory Tree in the wild. Around it, the dark begins to retreat.", true);
   npcReact("plant");
   updateHUD(); saveGame();
   return true;
 }
 function nurtureTree(t) {   // E near a tree: spend glowdust to feed its growth
-  if (t.level >= WORLD_TREE.maxLevel) { toast("🌳 this World Tree is fully grown", true); return; }
+  if (t.level >= WORLD_TREE.maxLevel) { toast("🌳 this Memory Tree is fully grown", true); return; }
   const cost = WORLD_TREE.tendCost(t.level);
   if (G.dust < cost) { toast(`🌱 need ✨${cost} glowdust to nurture this tree`, true); return; }
   G.dust -= cost; updateHUD();
@@ -6998,7 +7060,7 @@ function renderHavens() {
   const list = el("havens-list"); list.innerHTML = "";
   safeNodes().forEach(n => {
     const d = dist(player.x, player.y, n.x, n.y), here = d < 3;
-    const title = n.home ? "🔥 Campfire" : `🌳 ${WORLD_TREE.name(n.level)} · Lv ${n.level}`;
+    const title = n.home ? `🕯 Memorial Sanctuary · Tier ${sanctuaryForestTier()}` : `🌳 ${WORLD_TREE.name(n.level)} · Lv ${n.level}`;
     const meta = here ? "you are here" : `${d.toFixed(0)} away` + (n.home ? " · home" : ` · radius ${n.radius.toFixed(1)}`);
     const row = document.createElement("div");
     row.className = "haven-row" + (here ? " here" : "");
@@ -7010,7 +7072,7 @@ function renderHavens() {
   });
   if (worldTrees.length === 0) {
     const note = document.createElement("p");
-    note.className = "hint"; note.textContent = "plant World Trees out in the wild (T) to grow your travel network.";
+    note.className = "hint"; note.textContent = "plant Memory Trees out in the wild (T) to grow your travel network.";
     list.appendChild(note);
   }
 }
@@ -7019,7 +7081,7 @@ function travelTo(n) {
   player.x = n.x; player.y = n.home ? -1 : n.y; player.vx = player.vy = 0; player.target = null;
   cam.x = player.x; cam.y = player.y; G.recallCd = 18;
   burst(player.x, player.y, "#ffd166", 18, 2.6); shake(0.5); Au.sfx("win");
-  toast(n.home ? "🔥 home at the campfire" : `🌳 arrived at the ${WORLD_TREE.name(n.level)}`);
+  toast(n.home ? "🕯 home at the memorial sanctuary" : `🌳 arrived at the ${WORLD_TREE.name(n.level)}`);
   closeHavens();
 }
 
@@ -7051,7 +7113,7 @@ function traitsHTML(id, spec) {
 
 window.__milo = {
   G, skills, journal, codex, SPECIES, FRIENDLY_SPECIES, WILD_SPECIES, MILO_ART_STYLE_NAME, CREATURE_VARIANTS, VARIANT_IDS, variantLabel, creatureTitle, traitsHTML,
-  WORLD_TREE, get worldTrees() { return worldTrees; }, plantWorldTree, nurtureTree, growWorldTrees,
+  WORLD_TREE, get worldTrees() { return worldTrees; }, plantWorldTree, nurtureTree, growWorldTrees, sanctuaryForestTier,
   treeGainXP, creditNearestTree, nearestTree, nearestSafe, nearestSafeDist, exposure, safeNodes,
   openHavens, closeHavens, renderHavens, travelTo, drawCreatureArt, drawCreatureSprite, drawGameArt, drawGameArtFrame, drawCoverArt, drawContainArt, drawSpellVfx, artReady, CREATURE_ART, PROP_ART, ENV_ART, ENV_DEPTH_PROPS, HD2D_ART, drawEnvironmentDepthProp, CHARACTER_ANIM_ART, SPELL_ART, SPELL_PROFILES, spellProfileForSpecies, spawnSpellVfx,
   PROCGEN, generateRoster, applyRoster, restoreAuthoredRoster, AUTHORED_WILD_SPECIES, USE_AUTHORED_V01_ROSTER, genCreature, ALLY_ABIL,
@@ -7079,7 +7141,7 @@ window.__milo = {
 </script>
 <script>
 /* ================================================================
-   THE RIFT — Riftweaver systems woven into Milo: Glow Garden.
+   THE RIFT — Riftweaver systems woven into Milo: Pet Grave.
    The dream frays. You may let it fall. Friends, village, skills,
    gear and level ALWAYS survive — only the dream itself re-rolls,
    and it remembers how you lived in the last one.
@@ -7533,7 +7595,7 @@ window.__milo = {
     const dayness = G.phase === "day" ? Math.sin(Math.min(1, G.tod / DAY_LEN) * Math.PI) : 0;
     cx.save();
     cx.globalCompositeOperation = "lighter";
-    // campfire glow — warmer and wider at night
+    // memorial fire glow — warmer and wider at night
     const c0 = w2s(0, 0), r0 = (90 + 60 * (1 - dayness)) * zoom;
     const fg = cx.createRadialGradient(c0.x, c0.y, 4, c0.x, c0.y, r0);
     const fa = 0.05 + 0.22 * (1 - dayness) + 0.03 * Math.sin(G.t * 9);
