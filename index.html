@@ -629,7 +629,7 @@ const SPELL_PROFILES = {
   bloom:    { key: "dream_bloom",    mode: "bloom", color: "#8cf7df", accent: "#ffd166", frames: 8 },
 };
 const CHARACTER_ANIM_ART = {};
-for (const id of Object.keys(SPELL_PROFILES)) {
+for (const id of ["milo", "pip", "lume", "mossback", "ember", "puddle", "capkin", "starling", "fluffox", "mothlet"]) {
   CHARACTER_ANIM_ART[id] = {
     idle: loadGameArt(`${ART_PACK_ROOT}/Characters/${id}/animations/idle_strip.png`),
     cast: loadGameArt(`${ART_PACK_ROOT}/Characters/${id}/animations/cast_strip.png`),
