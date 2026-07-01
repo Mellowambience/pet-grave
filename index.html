@@ -1289,20 +1289,84 @@ function dropMotes(x, y, n) {
   for (let i = 0; i < n; i++) motes.push({ x: x + rand(-.5,.5), y: y + rand(-.5,.5), t: rand(0,6), grab: false });
 }
 // readable loot — visible drop orbs (dust/item/gear) that pop out and auto-magnet to the player
-function spawnLoot(x, y, kind, id, n = 1) {
+function lootTierFor(kind, n = 1, id = null) {
+  if (kind === "gear") return "legendary";
+  if (kind === "item" && id === "censer") return "rare";
+  if (kind === "item") return "uncommon";
+  if (n >= 18) return "rare";
+  if (n >= 8) return "uncommon";
+  return "common";
+}
+function lootColor(tier) {
+  return ({ common: "#ffd980", uncommon: "#a7f0cf", rare: "#c8b6ff", legendary: "#ff8fa3" })[tier] || "#ffd980";
+}
+function spawnLoot(x, y, kind, id, n = 1, tier = null) {
   const a = rand(0, Math.PI * 2), r = rand(0.15, 0.7);
-  loot.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r, kind, id, n, t: rand(0, 6), grab: false, pop: 0.4, vy: -1.4 });
+  const lt = tier || lootTierFor(kind, n, id);
+  loot.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r, kind, id, n, tier: lt,
+    t: rand(0, 6), grab: false, pop: 0.4, vy: -1.4, born: G.t });
 }
 function collectLoot(L) {
   if (L.kind === "dust") { G.dust += L.n; updateHUD(); }
   else if (L.kind === "item") { grantItem(L.id, L.n); }
   else if (L.kind === "gear") { grantGear(L.id); }
-  burst(player.x, player.y, "#ffd980", 4, 1.5); Au.sfx("mote");
+  const col = lootColor(L.tier);
+  burst(player.x, player.y, col, L.tier === "legendary" ? 12 : L.tier === "rare" ? 8 : 4, L.tier === "legendary" ? 3 : 1.8);
+  if (L.kind === "dust" && L.n >= 8) toast(`✨ +${L.n} glowdust`, L.tier === "rare");
+  Au.sfx(L.tier === "legendary" || L.tier === "rare" ? "level" : "mote");
 }
 function lootIcon(L) {
   if (L.kind === "dust") return "✨";
   if (L.kind === "gear") return (GEAR[L.id] && GEAR[L.id].ico) || "⚙";
   return (ITEMS[L.id] && ITEMS[L.id].ico) || "❔";
+}
+function drawLootLayer() {
+  for (const L of loot) {
+    const s = w2s(L.x, L.y);
+    const yo = s.y - 10 * zoom - Math.sin(L.t * 3) * 3 * zoom - (L.pop || 0) * 8 * zoom;
+    const tier = L.tier || lootTierFor(L.kind, L.n, L.id);
+    const col = lootColor(tier);
+    const pulse = 0.68 + 0.32 * Math.sin(G.t * 4 + L.t);
+    const rad = (tier === "legendary" ? 18 : tier === "rare" ? 15 : tier === "uncommon" ? 13 : 11) * zoom;
+    cx.save();
+    cx.globalCompositeOperation = "screen";
+    cx.fillStyle = `rgba(${hexRgb(col)},${0.12 + pulse * 0.12})`;
+    cx.beginPath(); cx.arc(s.x, yo, rad * 1.45, 0, 7); cx.fill();
+    cx.strokeStyle = `rgba(${hexRgb(col)},${0.32 + pulse * 0.22})`;
+    cx.lineWidth = Math.max(1, (tier === "legendary" ? 2.4 : 1.5) * zoom);
+    cx.beginPath(); cx.arc(s.x, yo, rad, 0, 7); cx.stroke();
+    if (tier === "rare" || tier === "legendary") {
+      cx.beginPath();
+      cx.moveTo(s.x, yo - rad * 1.45); cx.lineTo(s.x + rad * 0.28, yo - rad * 0.28);
+      cx.lineTo(s.x + rad * 1.45, yo); cx.lineTo(s.x + rad * 0.28, yo + rad * 0.28);
+      cx.lineTo(s.x, yo + rad * 1.45); cx.lineTo(s.x - rad * 0.28, yo + rad * 0.28);
+      cx.lineTo(s.x - rad * 1.45, yo); cx.lineTo(s.x - rad * 0.28, yo - rad * 0.28);
+      cx.closePath(); cx.stroke();
+    }
+    cx.globalCompositeOperation = "source-over";
+    cx.fillStyle = "rgba(16,11,22,.52)";
+    cx.beginPath(); cx.arc(s.x, yo, rad * 0.74, 0, 7); cx.fill();
+    cx.font = `${Math.max(14, tier === "legendary" ? 19 * zoom : 16 * zoom)}px serif`;
+    cx.textAlign = "center"; cx.textBaseline = "middle";
+    cx.fillText(lootIcon(L), s.x, yo);
+    if (L.n > 1) {
+      cx.font = `${9 * zoom}px sans-serif`;
+      cx.fillStyle = "#fff8d8";
+      cx.fillText("×" + L.n, s.x + 12 * zoom, yo + 9 * zoom);
+    }
+    cx.restore();
+  }
+}
+function scaledLootRoll(e, spec) {
+  const levelScale = Math.max(1, G.level || 1);
+  const waveScale = Math.max(1, G.wave || 1);
+  const elite = e.affix ? 1.5 : 1;
+  const boss = e.boss ? 4 : 1;
+  const baseDust = e.sp === "brute" ? 8 : Math.ceil((spec.xp || 2) / 2);
+  const dust = Math.max(1, Math.round((baseDust + levelScale * 0.55 + waveScale * 0.35) * elite * boss));
+  const itemChance = Math.min(0.62, (e.sp === "brute" ? 0.22 : 0.07) + levelScale * 0.012 + waveScale * 0.008 + (e.affix ? 0.14 : 0) + (e.boss ? 0.28 : 0));
+  const gearChance = Math.min(0.28, (e.sp === "brute" ? 0.05 : 0.012) + levelScale * 0.004 + waveScale * 0.003 + (e.affix ? 0.04 : 0) + (e.boss ? 0.10 : 0));
+  return { dust, itemChance, gearChance };
 }
 function forageDreamCalm(x, y, kind) {
   const mush = kind === 2;
@@ -3004,12 +3068,11 @@ function hurtEnemy(e, dmg, fromMilo) {
       if (dist(e.x, e.y, player.x, player.y) < 3) hurtPlayer(14, null);
     }
     dropMotes(e.x, e.y, spec.xp);
-    // readable loot — drops as collectible orbs that auto-magnet to you
-    const dustGain = e.sp === "brute" ? 8 : (Math.random() < 0.55 ? Math.ceil(spec.xp / 2) : 0);
-    if (dustGain) spawnLoot(e.x, e.y, "dust", null, dustGain);
-    if (!e.boss && Math.random() < (e.sp === "brute" ? 0.35 : 0.07)) spawnLoot(e.x, e.y, "item", rollItem());
-    if (!e.boss && Math.random() < (e.sp === "brute" ? 0.10 : 0.015)) spawnLoot(e.x, e.y, "gear", rollGear());
-    if (e.affix) { spawnLoot(e.x, e.y, "dust", null, 5 + G.wave); if (Math.random() < 0.4) spawnLoot(e.x, e.y, "item", rollItem()); if (Math.random() < 0.10) spawnLoot(e.x, e.y, "gear", rollGear()); }
+    // readable loot — drops scale with level, wave, elites, and bosses
+    const roll = scaledLootRoll(e, spec);
+    spawnLoot(e.x, e.y, "dust", null, roll.dust);
+    if (Math.random() < roll.itemChance) spawnLoot(e.x, e.y, "item", rollItem());
+    if (Math.random() < roll.gearChance) spawnLoot(e.x, e.y, "gear", rollGear());
     // necromancer: the fallen sometimes rise for you
     if (G.cls === "necromancer" && shades.length < 6 && Math.random() < 0.28) {
       shades.push({ x: e.x, y: e.y, life: 12, cd: 0.6, bob: rand(0, 6), face: 0, state: "orbit", prey: null, dmg: 7 + G.level });
@@ -3026,8 +3089,8 @@ function hurtEnemy(e, dmg, fromMilo) {
       toast("👑 <b>the colossus falls</b> · +40 ✨", true);
       log(`Felled a corrupted colossus (wave ${G.wave}).`, true);
       dropMotes(e.x, e.y, 10);
-      grantItem(rollItem(), 2);
-      grantGear(rollGear());
+      spawnLoot(e.x, e.y, "item", rollItem(), 2, "rare");
+      spawnLoot(e.x, e.y, "gear", rollGear(), 1, "legendary");
     }
     if (G.kills === 1) log("First corrupted creature destroyed. Milo looked thrilled. Concerning.", true);
   }
@@ -3688,9 +3751,10 @@ function update(dt) {
     L.t += dt;
     if (L.pop > 0) { L.pop -= dt; L.y += L.vy * dt; L.vy += 4 * dt; }   // brief pop-out arc
     const d = dist(L.x, L.y, player.x, player.y);
-    if (d < magnet * 1.3) L.grab = true;
+    const rarityPull = L.tier === "legendary" ? 1.9 : L.tier === "rare" ? 1.65 : L.tier === "uncommon" ? 1.45 : 1.25;
+    if (d < magnet * rarityPull) L.grab = true;
     if (L.grab && L.pop <= 0) {
-      const sp = 9;
+      const sp = L.tier === "legendary" ? 14 : L.tier === "rare" ? 12 : 9;
       L.x += (player.x - L.x) / (d || .01) * sp * dt;
       L.y += (player.y - L.y) / (d || .01) * sp * dt;
       if (d < 0.4) { L.dead = true; collectLoot(L); }
@@ -6693,19 +6757,6 @@ function draw() {
     cx.beginPath(); cx.arc(s.x, s.y - 5 * zoom - Math.sin(m.t * 2) * 3 * zoom, 2.6 * zoom, 0, 7); cx.fill();
   }
 
-  // readable loot orbs — show what dropped (icon + count), gently bobbing
-  for (const L of loot) {
-    const s = w2s(L.x, L.y);
-    const yo = s.y - 8 * zoom - Math.sin(L.t * 3) * 3 * zoom;
-    cx.save();
-    cx.fillStyle = "rgba(255,217,128,.18)";
-    cx.beginPath(); cx.arc(s.x, yo, 11 * zoom, 0, 7); cx.fill();
-    cx.font = `${16 * zoom}px serif`; cx.textAlign = "center"; cx.textBaseline = "middle";
-    cx.fillText(lootIcon(L), s.x, yo);
-    if (L.n > 1) { cx.font = `${9 * zoom}px sans-serif`; cx.fillStyle = "#fff8d8"; cx.fillText("×" + L.n, s.x + 11 * zoom, yo + 8 * zoom); }
-    cx.restore();
-  }
-
   // depth-sorted entities
   const ents = [];
   // glow trees (deterministic placement, depth-sorted with everything else)
@@ -6840,6 +6891,7 @@ function draw() {
     for (const k of [-1, 1]) { cx.beginPath(); cx.arc(s.x + k * R * .25, by - R * .1, R * .12, 0, 7); cx.fill(); }
     cx.globalAlpha = 1;
   }
+  drawLootLayer();
 
   // particles (sparks, hearts, damage numbers)
   for (const p of particles) {
