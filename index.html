@@ -1069,7 +1069,7 @@ function roleLabel(role) {
   return ({ tend: "🌱 tending", guard: "🛡 guarding", scout: "🧭 scouting", gather: "✨ gathering" })[role] || "🏡 helping";
 }
 function villageRoleCount(role) {
-  return allies.concat(reserve).filter(p => villageRole(p.sp) === role).length;
+  return allies.concat(reserve).filter(p => villageRole(p.sp) === role).length + ghostPets.filter(p => (p.duty || villageRole(p.sp)) === role).length;
 }
 function commandInfo(id) { return FRIEND_COMMANDS.find(c => c.id === id) || FRIEND_COMMANDS[0]; }
 function nearestCommandFriend(maxD = 3.2) {
@@ -1198,7 +1198,7 @@ function useVillageStation(s) {
 // ============================================================ entities
 const player = { x: 0, y: -1, vx: 0, vy: 0, face: .6, aim: .6, target: null, baseSpeed: 5.0, bob: 0, still: 0, dashLock: 0 };
 const milo = { x: -1.3, y: 0, face: 0, state: "follow", prey: null, dashT: 0, bob: Math.PI, dmgBase: 14, cdBase: 1.5, cd: 0, flash: 0 };
-let critters = [], allies = [], reserve = [], npcs = [], enemies = [], shots = [], motes = [], particles = [], markers = [], bubbles = [], pshots = [], spellVfx = [], shades = [], loot = [];
+let critters = [], allies = [], reserve = [], ghostPets = [], npcs = [], enemies = [], shots = [], motes = [], particles = [], markers = [], bubbles = [], pshots = [], spellVfx = [], shades = [], loot = [];
 const PETNAMES = ["Mochi", "Sprout", "Wisp", "Bumble", "Nori", "Pesto", "Clover", "Ember", "Tofu", "Maple", "Pickle", "Fennel", "Dusk", "Biscuit", "Juniper", "Soot"];
 let petNameIdx = Math.floor(Math.random() * PETNAMES.length);
 const petName = () => PETNAMES[(petNameIdx++) % PETNAMES.length];
@@ -1542,6 +1542,7 @@ function saveGame() {
       codex: Object.keys(codex).filter(k => codex[k]),
       allies: allies.map(a => ({ sp: a.sp, name: a.name, variant: a.variant, dmg: a.dmg, shiny: a.shiny, legendary: a.legendary, lvl: a.lvl, xp: a.xp, stage: a.stage, friendship: a.friendship, corrupted: a.corrupted, origin: a.origin, originName: a.originName, cmd: a.cmd, holdX: a.holdX, holdY: a.holdY })),
       reserve: reserve.map(a => ({ sp: a.sp, name: a.name, variant: a.variant, dmg: a.dmg, shiny: a.shiny, legendary: a.legendary, lvl: a.lvl, xp: a.xp, stage: a.stage, friendship: a.friendship, corrupted: a.corrupted, origin: a.origin, originName: a.originName, cmd: a.cmd, holdX: a.holdX, holdY: a.holdY })),
+      ghostPets: ghostPets.map(a => ({ sp: a.sp, name: a.name, variant: a.variant, lvl: a.lvl, stage: a.stage, friendship: a.friendship, fallenDay: a.fallenDay, duty: a.duty })),
       petNameIdx,
       journal: journal.slice(0, 40),
       worldTrees: worldTrees.map(t => ({ x: t.x, y: t.y, level: t.level, xp: t.xp, planted: t.planted })),
@@ -1581,6 +1582,9 @@ function loadGame() {
       x: rand(-1, 1), y: rand(-1, 1), bob: rand(0, 6), face: 0, state: "orbit", cd: 1, prey: null, cmdCd: rand(4, 10) });
     allies = s.allies.map(wake);
     reserve = s.reserve.map(wake);
+    ghostPets = (s.ghostPets || []).map(p => ({ sp: p.sp, name: p.name, variant: CREATURE_VARIANTS[p.variant] ? p.variant : "garden",
+      lvl: p.lvl || 1, stage: p.stage || 1, friendship: p.friendship || 0, fallenDay: p.fallenDay || G.dayNum, duty: p.duty || "grove",
+      x: rand(-3, 3), y: rand(-3, 3), bob: rand(0, 6), face: 0, state: "ghost" }));
     worldTrees = (s.worldTrees || []).map(t => makeTree({ x: t.x, y: t.y, level: t.level || t.stage || 1, xp: t.xp || 0, planted: t.planted || 0 }));
     petNameIdx = s.petNameIdx || 0;
     journal.length = 0; for (const j of s.journal) journal.push(j);
@@ -1863,6 +1867,13 @@ function renderHub() {
       `resting · Lv ${a.lvl || 1} · ${friendshipStage(a).ico} ${friendshipStage(a).name} · ${evoTitle(a.stage || 1)} · dash ${Math.round(a.dmg * (1 + (a.stage || 1) * 0.12) * G.allyDmgMul)} dmg`,
       Object.assign([{ t: roleLabel(villageRole(a.sp)) }, variantChip(a), { t: `${friendshipStage(a).ico} ${friendshipStage(a).name.toLowerCase()}` }, { t: `stage ${a.stage || 1}`, d: (a.stage || 1) > 1 }, ...(a.corrupted ? [{ t: "🕳 tamed " + a.originName, d: true }] : []), ...(a.legendary ? [{ t: "✨ " + a.legendary, d: true }] : []), { t: "snoozing" }].filter(Boolean), { actor: a }),
       { label: "deploy ⤴", fn: () => deployPet(i) }, { label: "absorb ✦", fn: () => absorbPet(reserve, i) }));
+    b.insertAdjacentHTML("beforeend", `<h4 style="margin:14px 0 8px;color:#c8b6ff;letter-spacing:2px">👻 GHOST GUARDIANS · ${ghostPets.length}</h4>`);
+    if (!ghostPets.length) {
+      b.insertAdjacentHTML("beforeend", `<p style="color:var(--dim)">If darkness overwhelms you, an active pet may become a ghost guardian instead of leaving Pet Grave.</p>`);
+    }
+    ghostPets.forEach(gp => mk(gp.sp, `${gp.name} · ${creatureTitle(gp.sp, gp.variant)}`,
+      `fallen day ${gp.fallenDay || 1} · tending ${VILLAGE_FOCUS[gp.duty || "tend"].name.toLowerCase()} · grows sanctuary roots`,
+      Object.assign([{ t: "👻 ghost guardian", d: true }, { t: roleLabel(gp.duty || "tend") }, variantChip(gp), { t: `stage ${gp.stage || 1}` }].filter(Boolean), { actor: gp })));
   } else if (hubTab === "village") {
     const focus = villageFocus();
     b.innerHTML = `<p style="margin:0 0 12px;color:var(--dim)">Choose one village focus. Friends help automatically according to their nature; no unit micromanagement.</p>`;
@@ -2410,11 +2421,12 @@ const picked = new Map(); // "x,y" -> respawn time
 function sanctuaryBloom() {
   const n = (allies ? allies.length : 0) + (reserve ? reserve.length : 0);
   const friendBloom = clamp(n / 9, 0, 1);
-  const forestBloom = clamp((G.forestMemory || 0) / 8, 0, 1);
+  const ghostBloom = clamp((ghostPets ? ghostPets.length : 0) / 10, 0, 1);
+  const forestBloom = clamp(((G.forestMemory || 0) + ghostBloom * 4) / 8, 0, 1);
   return clamp(friendBloom * 0.78 + forestBloom * 0.42, 0, 1);
 }
 function sanctuaryForestTier() {
-  return Math.min(5, 1 + Math.floor((G.forestMemory || 0) / 2));
+  return Math.min(5, 1 + Math.floor(((G.forestMemory || 0) + (ghostPets ? ghostPets.length : 0) * 0.75) / 2));
 }
 function sanctuaryStage() {
   const n = (allies ? allies.length : 0) + (reserve ? reserve.length : 0);
@@ -2926,6 +2938,36 @@ function grantGear(id) {
 }
 
 // ============================================================ update
+function ghostDutyForPet(p) {
+  const role = villageRole(p && p.sp);
+  return ["tend", "guard", "scout", "gather"].includes(role) ? role : "tend";
+}
+function losePetToDarkness(src) {
+  if (!allies.length || G.over) return false;
+  let idx = 0;
+  for (let i = 1; i < allies.length; i++) {
+    const a = allies[i], b = allies[idx];
+    if ((a.friendship || 0) < (b.friendship || 0) || ((a.friendship || 0) === (b.friendship || 0) && (a.lvl || 1) < (b.lvl || 1))) idx = i;
+  }
+  const pet = allies.splice(idx, 1)[0];
+  const ghost = {
+    sp: pet.sp, name: pet.name, variant: pet.variant, lvl: pet.lvl || 1, stage: pet.stage || 1,
+    friendship: pet.friendship || 0, fallenDay: G.dayNum, duty: ghostDutyForPet(pet),
+    x: pet.x || 0, y: pet.y || 0, bob: rand(0, 6), face: 0, state: "ghost",
+  };
+  ghostPets.push(ghost);
+  G.hp = Math.max(1, Math.ceil(G.hpMax * 0.32));
+  G.invuln = 1.8;
+  G.guardWard = Math.min(3, (G.guardWard || 0) + 1);
+  G.forestMemory = Math.min(99, (G.forestMemory || 0) + 1.25);
+  enemies = enemies.filter(e => dist(e.x, e.y, player.x, player.y) > 2.8);
+  burst(player.x, player.y, "#c8b6ff", 34, 4.2);
+  spawnSpellVfx(ghost.sp, player.x, player.y, player.x, player.y, { mode: "ward", impact: true, scale: 1.35, life: 1.2 });
+  toast(`👻 <b>${ghost.name}</b> became a ghost guardian · sanctuary roots deepen`, true);
+  log(`${ghost.name} fell against the darkness and became a ghost guardian of Pet Grave.`, true);
+  Au.sfx("shade"); shake(0.8); updateHUD(); renderHub(); saveGame();
+  return true;
+}
 function hurtPlayer(dmg, src) {
   if (G.invuln > 0 || G.over) return;
   if (villageFocus() === "guard") dmg *= Math.max(0.72, 1 - villageRoleCount("guard") * 0.05);
@@ -2941,7 +2983,9 @@ function hurtPlayer(dmg, src) {
   dmgNum(player.x, player.y, dmg, "#ff5d73");
   shake(0.5); Au.sfx("hurt");
   updateHUD();
-  if (G.hp <= 0) gameOver();
+  if (G.hp <= 0) {
+    if (!losePetToDarkness(src)) gameOver();
+  }
   const eThorns = (G.thorns + G.gearStats.thorns) * COMBAT_SEASONING;
   if (src && eThorns) hurtEnemy(src, eThorns, false);
 }
@@ -3368,6 +3412,22 @@ function update(dt) {
   }
 
   // ---------- village residents (sanctuary friends live around the fire) ----------
+  for (let j = 0; j < ghostPets.length; j++) {
+    const gp = ghostPets[j];
+    gp.bob = (gp.bob || 0) + dt * 2.2;
+    gp.pulseCd = (gp.pulseCd === undefined ? rand(14, 28) : gp.pulseCd - dt);
+    if (gp.pulseCd <= 0 && !G.surge && enemies.length === 0) {
+      gp.pulseCd = rand(18, 32);
+      const duty = gp.duty || "tend";
+      if (duty === "guard") G.guardWard = Math.min(3, (G.guardWard || 0) + 1);
+      else if (duty === "gather") G.dust += 2 + Math.floor((gp.stage || 1) / 2);
+      else if (duty === "scout" && critters.length < 18) spawnCritter();
+      else G.hp = Math.min(G.hpMax, G.hp + 5 + (gp.stage || 1));
+      G.forestMemory = Math.min(99, (G.forestMemory || 0) + 0.08);
+      if (!G.lowFx) particles.push({ x: Math.cos(j * 2.399) * 2.5, y: Math.sin(j * 2.399) * 1.6 - 0.4, vx: 0, vy: -0.25, t: 0, life: 1.2, color: "#c8b6ff", txt: "root+" });
+      updateHUD();
+    }
+  }
   for (let j = 0; j < reserve.length; j++) {
     const r = reserve[j];
     if (!r.cmd) r.cmd = "follow";
@@ -6393,6 +6453,7 @@ function drawCamp() {
   drawVillageUpgrades();
   drawVillageHomes();
   drawSanctuaryGenesis(stage, bloom);
+  drawGhostGuardians();
   if (battle || G.surge || enemies.length) drawVillageStations();
   drawMemoryLanterns();
   const drewCampfireArt = !G.lowFx && drawGameArt(cx, PROP_ART.campfire, fire.x, fire.y + 18 * zoom, 88 * zoom, 1, 0.98);
@@ -6425,6 +6486,37 @@ function drawCamp() {
     cx.globalCompositeOperation = "source-over";
   }
   bondedFriends().slice(0, 3).forEach(drawVillageProp);
+}
+
+function drawGhostGuardians() {
+  if (!ghostPets.length) return;
+  const count = Math.min(18, ghostPets.length);
+  cx.save();
+  cx.globalCompositeOperation = "screen";
+  for (let i = 0; i < count; i++) {
+    const gp = ghostPets[i];
+    const a = G.t * (0.16 + i * 0.004) + i * 2.39996;
+    const r = 2.4 + (i % 6) * 0.55 + Math.floor(i / 6) * 0.55;
+    const wx = Math.cos(a) * r;
+    const wy = Math.sin(a) * r * 0.66 - 0.35;
+    gp.x = wx; gp.y = wy; gp.bob = (gp.bob || 0) + 0.04;
+    const s = w2s(wx, wy);
+    const sp = SPECIES[gp.sp] || SPECIES.milo;
+    const R = (sp.size || 9) * 0.78 * zoom;
+    const pulse = 0.55 + 0.45 * Math.sin(G.t * 1.8 + i);
+    cx.globalAlpha = 0.24 + pulse * 0.18;
+    const aura = cx.createRadialGradient(s.x, s.y - R, 1, s.x, s.y - R, R * 2.2);
+    aura.addColorStop(0, `rgba(200,182,255,${0.28 + pulse * 0.15})`);
+    aura.addColorStop(1, "rgba(200,182,255,0)");
+    cx.fillStyle = aura; cx.beginPath(); cx.arc(s.x, s.y - R, R * 2.2, 0, 7); cx.fill();
+    cx.globalAlpha = 0.34 + pulse * 0.22;
+    drawCreatureArt(cx, sp, s.x, s.y, R, 0.6 + Math.sin(a) * 0.4, gp.bob, false, false, 0.48, gp);
+    cx.fillStyle = `rgba(255,240,168,${0.14 + pulse * 0.12})`;
+    cx.beginPath(); cx.arc(s.x, s.y - R * 1.9, Math.max(1.2, 2.1 * zoom), 0, 7); cx.fill();
+  }
+  cx.globalAlpha = 1;
+  cx.globalCompositeOperation = "source-over";
+  cx.restore();
 }
 
 function drawBubbles() {
@@ -6923,6 +7015,7 @@ function controllerState() {
     limit: Math.round(G.limit || 0), limitT: Math.round((G.limitT || 0) * 10) / 10, guardWard: G.guardWard || 0,
     calmAuraT: Math.round((G.calmAuraT || 0) * 10) / 10,
     dust: G.dust, bonds: G.bonds, active: allies.length, reserve: reserve.length,
+    ghosts: ghostPets.length,
     villageFocus: villageFocus(),
     villageRoles: {
       tend: villageRoleCount("tend"),
@@ -7339,9 +7432,9 @@ window.__milo = {
   NPC_REACT, npcReact, get npcs() { return npcs; }, npcService,
   get loot() { return loot; }, spawnLoot, collectLoot, lootIcon, dropMotes,
   get critters() { return critters; }, get enemies() { return enemies; },
-  get allies() { return allies; }, get reserve() { return reserve; }, get battle() { return battle; },
+  get allies() { return allies; }, get reserve() { return reserve; }, get ghostPets() { return ghostPets; }, get battle() { return battle; },
   startBattle, doAction, toggleHub, renderHub, spawnEnemy, gainXP, hurtEnemy,
-  bondCreature, restPet, deployPet, respawn, gameOver,
+  bondCreature, restPet, deployPet, respawn, gameOver, losePetToDarkness,
   openCamp, renderCamp, buyTalent, CLASSES, TALENTS, CAMP_UPG,
   get pshots() { return pshots; }, get spellVfx() { return spellVfx; }, get shades() { return shades; },
   saveGame, loadGame, hasSave, exportSaveString, importSaveString, toggleMenu, refreshMenuButtons, closeWin, Au, spawnCritter,
