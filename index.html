@@ -622,6 +622,11 @@ const SPELL_PROFILES = {
   starling: { key: "star_wink",      mode: "bolt",  color: "#fff0a8", accent: "#bdf7ff", frames: 8 },
   fluffox:  { key: "tail_spark",     mode: "bolt",  color: "#ffd166", accent: "#ff8fa3", frames: 8 },
   mothlet:  { key: "lantern_halo",   mode: "halo",  color: "#f8d98b", accent: "#c9b8ff", frames: 8 },
+  ward:     { key: "lantern_halo",   mode: "ward",  color: "#fff0a8", accent: "#7ee8b2", frames: 8 },
+  veil:     { key: "spore_puff",     mode: "veil",  color: "#c9b8ff", accent: "#ff8fa3", frames: 8 },
+  rain:     { key: "star_wink",      mode: "rain",  color: "#bdf7ff", accent: "#fff0a8", frames: 8 },
+  spiral:   { key: "tail_spark",     mode: "spiral", color: "#ffd166", accent: "#c77dff", frames: 8 },
+  bloom:    { key: "dream_bloom",    mode: "bloom", color: "#8cf7df", accent: "#ffd166", frames: 8 },
 };
 const CHARACTER_ANIM_ART = {};
 for (const id of Object.keys(SPELL_PROFILES)) {
@@ -705,7 +710,11 @@ function spriteIdForSpec(spec) {
   return (spec.asset || spec.name || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 function spellProfileForSpecies(sp) {
-  return SPELL_PROFILES[sp] || SPELL_PROFILES[spriteIdForSpec(sp)] || SPELL_PROFILES.pip;
+  const spec = SPECIES[sp];
+  if (SPELL_PROFILES[sp]) return SPELL_PROFILES[sp];
+  if (spec && spec.spellProfile) return spec.spellProfile;
+  if (spec && spec.abil && SPELL_PROFILES[spec.abil]) return { ...SPELL_PROFILES[spec.abil], color: spec.core || SPELL_PROFILES[spec.abil].color, accent: spec.base || SPELL_PROFILES[spec.abil].accent };
+  return SPELL_PROFILES[spriteIdForSpec(sp)] || SPELL_PROFILES.pip;
 }
 
 // ============================================================ game state
@@ -764,6 +773,27 @@ const MILO_STYLE = {
   thorn: "#241524",
   vein: "#ff4358",
 };
+const PET_GRAVE_STYLE = {
+  ink: "#100b16",
+  outline: "#251f31",
+  warm: "#f0d08a",
+  lantern: "#ffd980",
+  cream: "#fff7f1",
+  palettes: [
+    { base: "#d9f7c7", shade: "#5d7f5a", core: "#ffd980", accent: "#a7f0cf" },
+    { base: "#c8b6ff", shade: "#4b3a68", core: "#fff0a8", accent: "#a7f0cf" },
+    { base: "#bdf7ff", shade: "#35586a", core: "#fff7bd", accent: "#c8b6ff" },
+    { base: "#d7b06f", shade: "#6a463e", core: "#ffd980", accent: "#ffb891" },
+    { base: "#ffd6e7", shade: "#7a405a", core: "#fff0a8", accent: "#a7f0cf" },
+    { base: "#b9d7a8", shade: "#435a42", core: "#ffd980", accent: "#c8b6ff" },
+  ],
+  spellModes: ["halo", "nova", "bolt", "snare", "bloom", "ward", "veil", "rain", "spiral"],
+  abilityArchetypes: ["pip", "lume", "mossback", "ember", "puddle", "capkin", "starling", "fluffox", "mothlet", "ward", "veil", "rain", "spiral", "bloom"],
+};
+function stylePalette(i) { return PET_GRAVE_STYLE.palettes[((i % PET_GRAVE_STYLE.palettes.length) + PET_GRAVE_STYLE.palettes.length) % PET_GRAVE_STYLE.palettes.length]; }
+function harmonizePetColors(base, shade, core) {
+  return { base: tintHex(base, PET_GRAVE_STYLE.cream, 0.10), shade: tintHex(shade, PET_GRAVE_STYLE.ink, 0.12), core: tintHex(core || PET_GRAVE_STYLE.lantern, PET_GRAVE_STYLE.warm, 0.18) };
+}
 
 // ============================================================ species & content
 const SPECIES = {
@@ -799,7 +829,7 @@ const SPECIES = {
 const FRIENDLY_SPECIES = Object.keys(SPECIES).filter(id => SPECIES[id].peaceful);
 const WILD_SPECIES = FRIENDLY_SPECIES.filter(id => id !== "milo");
 const AUTHORED_WILD_SPECIES = WILD_SPECIES.slice();
-const USE_AUTHORED_V01_ROSTER = true;
+const USE_AUTHORED_V01_ROSTER = false;
 
 const MILO_ART_STYLE_NAME = "Dreamglass Plush";
 const CREATURE_VARIANTS = {
@@ -1360,7 +1390,7 @@ log("You and Milo stepped into Pet Grave.");
 
 // ============================================================ AUDIO (fully procedural — no assets)
 const Au = {
-  ctx: null, master: null, started: false, padOsc: [],
+  ctx: null, master: null, musicGain: null, started: false, padOsc: [], musicTimers: [],
   start() {
     if (this.started) return;
     try {
@@ -1368,8 +1398,12 @@ const Au = {
       this.master = this.ctx.createGain();
       this.master.gain.value = G.muted ? 0 : 0.5;
       this.master.connect(this.ctx.destination);
+      this.musicGain = this.ctx.createGain();
+      this.musicGain.gain.value = 0.18;
+      this.musicGain.connect(this.master);
       this.started = true;
       this.ambient();
+      this.song();
     } catch (e) { /* audio unavailable — play silent */ }
   },
   setMuted(m) { G.muted = m; if (this.master) this.master.gain.value = m ? 0 : 0.5; },
@@ -1398,6 +1432,18 @@ const Au = {
   },
   chord(freqs, dur, vol, gap) {
     freqs.forEach((f, i) => setTimeout(() => this.blip(f, dur, "sine", vol), i * (gap || 70)));
+  },
+  tone(freq, dur, type = "sine", vol = 0.04, dest = null, slide = 0) {
+    if (!this.started || G.muted) return;
+    const t0 = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    if (slide) o.frequency.linearRampToValueAtTime(Math.max(30, freq + slide), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + Math.min(0.7, dur * 0.22));
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(dest || this.musicGain || this.master);
+    o.start(t0); o.stop(t0 + dur + 0.04);
   },
   sfx(name) {
     if (!this.started || G.muted) return;
@@ -1448,6 +1494,29 @@ const Au = {
     };
     tick();
   },
+  song() {
+    if (!this.started) return;
+    const scale = [196, 220, 261.63, 293.66, 329.63, 392, 440, 523.25];
+    const motif = [0, 2, 5, 4, 2, 6, 5, 3, 1, 4, 2, 0];
+    let step = 0;
+    const play = () => {
+      if (this.started && !G.muted) {
+        const night = G.phase === "night" || G.surge;
+        const root = night ? 146.83 : 196;
+        this.tone(root, 5.8, "sine", night ? 0.024 : 0.018, this.musicGain);
+        this.tone(root * 1.5, 5.8, "triangle", night ? 0.014 : 0.011, this.musicGain);
+        if (!G.paused && G.started) {
+          const f = scale[motif[step % motif.length]] * (night ? 0.75 : 1);
+          this.tone(f, 1.8, "sine", 0.034, this.musicGain);
+          this.tone(f * 2, 1.2, "triangle", 0.012, this.musicGain, -8);
+          if (step % 4 === 0) this.noise(0.42, 0.018, night ? 520 : 1400, 0.8);
+          step++;
+        }
+      }
+      this.musicTimers.push(setTimeout(play, 1800));
+    };
+    play();
+  },
 };
 window.addEventListener("pointerdown", () => Au.start(), { once: true });
 window.addEventListener("keydown", () => Au.start(), { once: true });
@@ -1487,7 +1556,8 @@ function loadGame() {
   try {
     const s = JSON.parse(localStorage.getItem(SAVE_KEY));
     if (!s || s.v !== 1) return false;
-    if (s.roster && s.roster.length) { G.rosterSeed = s.rosterSeed; applyRoster(s.roster); }   // restore this world's creatures
+    if (s.roster && s.roster.length >= PROCGEN.count) { G.rosterSeed = s.rosterSeed; applyRoster(s.roster); }   // restore this world's creatures
+    else if (!USE_AUTHORED_V01_ROSTER) generateRoster((s && s.rosterSeed && s.rosterSeed !== "authored-v01") ? s.rosterSeed : undefined);
     Object.assign(G, s.G);
     if (!G.inv || typeof G.inv !== "object") G.inv = {};
     if (!G.story || !Array.isArray(G.story.seen)) G.story = { flags: {}, seen: [] };
@@ -3857,6 +3927,19 @@ function allySpellBolt(a, p, speed = 14, dmgMul = 1) {
     vx: (p.x - a.x) / d * speed, vy: (p.y - a.y) / d * speed, t: 0,
     dmg: allyPow(a) * dmgMul, hit: new Set(), col: profile.color, trail: profile.accent });
 }
+function allySpellNova(a, p, mode = "ward", radius = 2.8, dmgMul = 0.85) {
+  const target = p || a || player;
+  const profile = markAllyCast(a, target, { mode, atTarget: mode === "rain", impact: true, scale: 1.08 });
+  const cx0 = mode === "rain" && p ? p.x : a.x, cy0 = mode === "rain" && p ? p.y : a.y;
+  for (const e of enemies) {
+    if (dist(e.x, e.y, cx0, cy0) < radius) {
+      if (mode === "veil" || mode === "ward") e.slow = Math.max(e.slow || 0, 1.8);
+      hurtEnemy(e, allyPow(a) * dmgMul);
+    }
+  }
+  if (mode === "ward") G.guardWard = Math.min(3, (G.guardWard || 0) + 1);
+  burst(cx0, cy0, profile.color, 10, 2.5);
+}
 const ALLY_ABIL = {
   pip:      { ico: "🌸", name: "Petal Burst", cd: 5,
     fn(a, p) { markAllyCast(a, p || a, { mode: "nova", scale: 1.25 }); markers.push({ x: a.x, y: a.y, t: 0, nova: true, druid: true }); for (const e of enemies) if (dist(e.x, e.y, a.x, a.y) < 2.8) hurtEnemy(e, allyPow(a)); } },
@@ -3876,6 +3959,16 @@ const ALLY_ABIL = {
     fn(a, p) { allySpellBolt(a, p, 14.5); } },
   mothlet:  { ico: "🏮", name: "Lantern Halo", cd: 7,
     fn(a, p) { markAllyCast(a, p || player, { mode: "halo", scale: 1.12 }); if (G.hp < G.hpMax) { G.hp = Math.min(G.hpMax, G.hp + 4 + (a.stage || 1) * 2); heart(player.x, player.y); updateHUD(); } if (p) hurtEnemy(p, allyPow(a) * 0.6); } },
+  ward:     { ico: "🕯", name: "Grave Ward", cd: 8,
+    fn(a, p) { allySpellNova(a, p, "ward", 3.4, 0.7); } },
+  veil:     { ico: "🌫", name: "Petal Veil", cd: 7.5,
+    fn(a, p) { allySpellNova(a, p, "veil", 3.1, 0.75); if (G.hp < G.hpMax) { G.hp = Math.min(G.hpMax, G.hp + 5); heart(player.x, player.y); updateHUD(); } } },
+  rain:     { ico: "☄", name: "Starfall", cd: 6.5,
+    fn(a, p) { if (p) allySpellNova(a, p, "rain", 2.7, 1.05); } },
+  spiral:   { ico: "🌀", name: "Wisp Spiral", cd: 5.5,
+    fn(a, p) { allySpellNova(a, p, "spiral", 2.5, 0.95); } },
+  bloom:    { ico: "🌼", name: "Epitaph Bloom", cd: 7,
+    fn(a, p) { markAllyCast(a, player, { mode: "bloom", impact: true, scale: 1.18 }); G.focus = Math.min(G.focusMax, G.focus + 12); if (p) hurtEnemy(p, allyPow(a) * 0.55); updateHUD(); } },
 };
 // ============================================================ PROCEDURAL ROSTER
 // No Man's Sky-style generation, kept on-style: each run rolls a fresh wild roster from
@@ -3891,11 +3984,11 @@ function hsl2hex(h, s, l) {
   return "#" + f(0) + f(8) + f(4);
 }
 const PROCGEN = {
-  count: 9,                                  // modular: matches the wild-roster contract
+  count: 91,                                 // 9 authored + 91 generated = 100 wild species
   ears: ["bunny", "cat", "leaf", "leaf", "horns", "moth"],
   tails: ["puff", "wisp", "flare", "puff", "none"],
   tempers: ["skittish", "curious", "stoic", "proud", "sleepy"],
-  abil: ["pip", "lume", "mossback", "ember", "puddle", "capkin", "starling", "fluffox", "mothlet"],
+  abil: PET_GRAVE_STYLE.abilityArchetypes,
   namePre: ["Mo", "Pip", "Lu", "Em", "Fen", "Bri", "Sol", "Tuf", "Glim", "Nim", "Bo", "Ka", "Sy", "Vel", "Mun", "Or", "Dap", "Wun", "Tib", "Cor"],
   nameSuf: ["kin", "let", "back", "ling", "puff", "spark", "bloom", "wisp", "tuft", "mote", "fuzz", "nip", "berry", "wick"],
   loreAdj: ["shy", "curious", "drowsy", "proud", "gentle", "bright-eyed", "mossy", "dappled", "soft", "watchful"],
@@ -3912,23 +4005,25 @@ function genCreature(rng, id) {
   let tail = (jelly || star) ? "none" : pick(PROCGEN.tails);
   const spots = rng() < 0.4;
   if (ears === "none" && !antlers && !wings && !cap && !star && !jelly && tail === "none") ears = "leaf"; // guarantee a silhouette hook
-  // palette — varied hue, plush values, always a warm core (style guide: never single-hue)
-  const h = Math.floor(rng() * 360), s = 36 + Math.floor(rng() * 32), l = 56 + Math.floor(rng() * 14);
-  const base = hsl2hex(h, s, l);
-  const shade = hsl2hex(h, Math.min(85, s + 12), Math.max(24, l - 28));
-  const core = hsl2hex(40 + Math.floor(rng() * 18), 90, 64);
+  const pal = stylePalette(Math.floor(rng() * PET_GRAVE_STYLE.palettes.length));
+  const alt = stylePalette(Math.floor(rng() * PET_GRAVE_STYLE.palettes.length));
+  const colors = harmonizePetColors(tintHex(pal.base, alt.base, rng() * 0.28), tintHex(pal.shade, alt.shade, rng() * 0.18), tintHex(pal.core, alt.core, rng() * 0.18));
+  const base = colors.base, shade = colors.shade, core = colors.core;
+  const ability = pick(PROCGEN.abil);
+  const mode = PET_GRAVE_STYLE.spellModes[Math.floor(rng() * PET_GRAVE_STYLE.spellModes.length)];
   const name = pick(PROCGEN.namePre) + pick(PROCGEN.nameSuf);
   return {
     id, name, base, shade, core, size: 8 + rng() * 5, speed: 0.7 + rng() * 1.8,
     ears, tail, antlers, wings, cap, star, jelly, spots,
-    temper: pick(PROCGEN.tempers), abil: pick(PROCGEN.abil), peaceful: true,
+    temper: pick(PROCGEN.tempers), abil: ability, peaceful: true,
+    spellProfile: { key: (SPELL_PROFILES[ability] || SPELL_PROFILES.pip).key, mode, color: core, accent: pal.accent, frames: 8 },
     procedural: true,
     lore: `A ${pick(PROCGEN.loreAdj)} ${pick(PROCGEN.loreNoun)} found wandering the dream.`,
   };
 }
 function applyRoster(specs) {
   for (const id of WILD_SPECIES.slice()) if (SPECIES[id] && SPECIES[id].procedural) { delete SPECIES[id]; delete ALLY_ABIL[id]; }
-  const ids = [];
+  const ids = AUTHORED_WILD_SPECIES.slice();
   for (const sp of specs) {
     SPECIES[sp.id] = sp;
     ALLY_ABIL[sp.id] = ALLY_ABIL[sp.abil] || ALLY_ABIL.pip;
@@ -3958,7 +4053,6 @@ if (USE_AUTHORED_V01_ROSTER) {
   restoreAuthoredRoster();
 } else {
   generateRoster();
-  critters.length = 0; for (let i = 0; i < 8; i++) spawnCritter();   // initial world uses the procedural roster
 }
 
 function captureCorrupted(e) {
@@ -4693,11 +4787,52 @@ function drawSpellVfx(g, fx) {
   const frames = 8;
   const frame = Math.min(frames - 1, Math.floor(k * frames));
   const profile = spellProfileForSpecies(fx.sp);
-  const h = (fx.mode === "bolt" ? 74 : fx.mode === "snare" ? 96 : 118) * zoom * (fx.scale || 1) * (fx.impact ? 1.08 : 1);
+  const h = (fx.mode === "bolt" ? 74 : fx.mode === "snare" ? 96 : fx.mode === "rain" ? 126 : fx.mode === "ward" ? 140 : 118) * zoom * (fx.scale || 1) * (fx.impact ? 1.08 : 1);
   const rot = fx.mode === "bolt" ? Math.atan2(target.y - p.y, target.x - p.x) : Math.sin((G.t || 0) * 2 + fx.seed) * 0.05;
   const alpha = (1 - k) * (fx.impact ? 0.92 : 0.74);
   g.save();
   g.globalCompositeOperation = "screen";
+  if (fx.mode === "ward" || fx.mode === "veil" || fx.mode === "rain" || fx.mode === "spiral") {
+    const rgb = hexRgb(profile.color), arc = hexRgb(profile.accent);
+    g.lineCap = "round";
+    if (fx.mode === "ward") {
+      for (let i = 0; i < 3; i++) {
+        const r = h * (0.18 + i * 0.11 + k * 0.24);
+        g.strokeStyle = `rgba(${i % 2 ? arc : rgb},${0.30 * (1 - k)})`;
+        g.lineWidth = Math.max(1, (3 - i * 0.45) * zoom);
+        g.beginPath(); g.ellipse(p.x, p.y - 16 * zoom, r, r * 0.42, 0, Math.PI * (0.15 + k), Math.PI * (1.85 + k)); g.stroke();
+      }
+    } else if (fx.mode === "veil") {
+      for (let i = 0; i < 8; i++) {
+        const a = fx.seed + i * 0.78 + k * 2.4;
+        const r = h * (0.18 + k * 0.45 + (i % 3) * 0.035);
+        g.fillStyle = `rgba(${i % 2 ? arc : rgb},${0.22 * (1 - k)})`;
+        g.beginPath(); g.arc(p.x + Math.cos(a) * r, p.y - 18 * zoom + Math.sin(a * 1.7) * r * 0.42, Math.max(1.5, h * 0.025), 0, 7); g.fill();
+      }
+    } else if (fx.mode === "rain") {
+      for (let i = 0; i < 9; i++) {
+        const dx = (i - 4) * h * 0.055 + Math.sin(fx.seed + i) * h * 0.025;
+        const y0 = p.y - h * (0.55 - k * 0.9) - i % 3 * h * 0.06;
+        g.strokeStyle = `rgba(${i % 2 ? arc : rgb},${0.34 * (1 - k)})`;
+        g.lineWidth = Math.max(1, 2.2 * zoom);
+        g.beginPath(); g.moveTo(p.x + dx, y0); g.lineTo(p.x + dx - h * 0.035, y0 + h * 0.18); g.stroke();
+      }
+    } else {
+      g.strokeStyle = `rgba(${rgb},${0.36 * (1 - k)})`;
+      g.lineWidth = Math.max(1, 3.5 * zoom);
+      g.beginPath();
+      for (let i = 0; i < 36; i++) {
+        const a = fx.seed + i / 35 * Math.PI * 2.2 + k * 2.8;
+        const r = h * (0.08 + i / 35 * 0.36);
+        const x = p.x + Math.cos(a) * r;
+        const y = p.y - 18 * zoom + Math.sin(a) * r * 0.46;
+        if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+      }
+      g.stroke();
+    }
+    g.restore();
+    return;
+  }
   const drew = drawGameArtFrame(g, SPELL_ART[fx.key], p.x, p.y - 18 * zoom, h, frames, frame, 0.5, alpha, false, {
     rotation: rot,
     scaleX: 1 + k * 0.18,
@@ -5443,10 +5578,33 @@ function drawTiles() {
   const cxi = Math.round(cam.x), cyi = Math.round(cam.y);
   cx.save();
   const plane = w2s(cam.x, cam.y);
+  const cosmic = cx.createRadialGradient(plane.x, plane.y, 0, plane.x, plane.y, Math.max(W, H) * 0.82);
+  cosmic.addColorStop(0, "rgba(34,24,54,.62)");
+  cosmic.addColorStop(0.44, "rgba(21,15,36,.78)");
+  cosmic.addColorStop(1, "rgba(7,5,15,.92)");
+  cx.fillStyle = cosmic;
+  cx.fillRect(0, 0, W, H);
+  if (!G.lowFx) {
+    cx.globalCompositeOperation = "screen";
+    for (let i = 0; i < 120; i++) {
+      const sx = (hash2(i * 29 + 7, 13) * W + Math.sin(G.t * 0.08 + i) * 18 + cam.x * -5) % (W + 80) - 40;
+      const sy = (hash2(i * 31 - 4, 17) * H + Math.cos(G.t * 0.07 + i * 1.7) * 12 + cam.y * -3) % (H + 80) - 40;
+      const tw = 0.28 + 0.72 * Math.max(0, Math.sin(G.t * (0.7 + hash2(i, 5) * 1.4) + i));
+      const warm = i % 5 === 0;
+      cx.fillStyle = warm ? `rgba(255,217,128,${0.12 * tw})` : `rgba(200,182,255,${0.10 * tw})`;
+      cx.beginPath(); cx.arc(sx, sy, (0.7 + hash2(i, 23) * 1.7) * zoom, 0, 7); cx.fill();
+      if (i % 17 === 0) {
+        cx.strokeStyle = `rgba(167,240,207,${0.05 * tw})`;
+        cx.lineWidth = Math.max(0.5, 0.8 * zoom);
+        cx.beginPath(); cx.moveTo(sx - 7 * zoom, sy); cx.lineTo(sx + 7 * zoom, sy); cx.moveTo(sx, sy - 7 * zoom); cx.lineTo(sx, sy + 7 * zoom); cx.stroke();
+      }
+    }
+    cx.globalCompositeOperation = "source-over";
+  }
   const groundGlow = cx.createRadialGradient(plane.x, plane.y, 0, plane.x, plane.y, Math.max(W, H) * 0.72);
-  groundGlow.addColorStop(0, "rgba(255,226,174,.095)");
-  groundGlow.addColorStop(0.46, "rgba(112,92,122,.16)");
-  groundGlow.addColorStop(1, "rgba(13,8,20,.18)");
+  groundGlow.addColorStop(0, "rgba(255,226,174,.060)");
+  groundGlow.addColorStop(0.46, "rgba(112,92,122,.095)");
+  groundGlow.addColorStop(1, "rgba(13,8,20,.08)");
   cx.fillStyle = groundGlow;
   cx.fillRect(0, 0, W, H);
   if (!G.surge && enemies.length === 0) {
@@ -5463,8 +5621,6 @@ function drawTiles() {
       cx.fill();
     }
     cx.globalCompositeOperation = "source-over";
-    cx.restore();
-    return;
   }
   for (let gx = cxi - range; gx <= cxi + range; gx++) {
     for (let gy = cyi - range; gy <= cyi + range; gy++) {
@@ -5476,15 +5632,13 @@ function drawTiles() {
       const heal = sanctuaryBloom() * sanctuaryNear(gx, gy);
       const warmTint = G.phase === "night" ? 0.04 : 0.08;
       const litGround = tintHex(baseGround, "#fff1c8", warmTint + hash2(gx - 3, gy + 8) * 0.018);
-      if (false) {
-        cx.globalAlpha = 0.18;
-        drawTileDiamond(s, zoom, litGround, "");
-        cx.globalAlpha = 1;
-      }
-      if (!G.lowFx && false) {
+      cx.globalAlpha = G.surge || enemies.length ? 0.24 : 0.13;
+      drawTileDiamond(s, zoom, litGround, `rgba(200,182,255,${0.020 + heal * 0.035})`);
+      cx.globalAlpha = 1;
+      if (!G.lowFx) {
         const faceGlow = cx.createLinearGradient(s.x, s.y - TH * zoom, s.x, s.y + TH * zoom);
-        faceGlow.addColorStop(0, "rgba(255,255,255,.006)");
-        faceGlow.addColorStop(1, "rgba(0,0,0,.010)");
+        faceGlow.addColorStop(0, `rgba(255,255,255,${0.010 + heal * 0.012})`);
+        faceGlow.addColorStop(1, "rgba(0,0,0,.018)");
         cx.fillStyle = faceGlow;
         cx.beginPath();
         cx.moveTo(s.x, s.y - TH * zoom); cx.lineTo(s.x + TW * zoom, s.y);
@@ -5513,6 +5667,20 @@ function drawTiles() {
           cx.moveTo(s.x - TW * .46 * zoom, s.y + TH * .05 * zoom);
           cx.quadraticCurveTo(s.x - TW * .08 * zoom, s.y - TH * .20 * zoom, s.x + TW * .42 * zoom, s.y + TH * .04 * zoom);
           cx.stroke();
+        }
+        const starChance = 0.955 - heal * 0.08;
+        if (hash2(gx * 41 + 2, gy * 43 - 9) > starChance) {
+          const pulse = 0.45 + 0.55 * Math.sin(G.t * 1.7 + gx * 0.9 + gy);
+          cx.globalCompositeOperation = "screen";
+          cx.fillStyle = `rgba(${B.warm},${0.10 + pulse * 0.12})`;
+          cx.beginPath(); cx.arc(s.x, s.y - 4 * zoom, (1.2 + pulse * 1.8) * zoom, 0, 7); cx.fill();
+          cx.strokeStyle = `rgba(${B.accent},${0.04 + pulse * 0.08})`;
+          cx.lineWidth = Math.max(0.6, 0.8 * zoom);
+          cx.beginPath();
+          cx.moveTo(s.x - TW * .22 * zoom, s.y);
+          cx.quadraticCurveTo(s.x, s.y - TH * .18 * zoom, s.x + TW * .22 * zoom, s.y);
+          cx.stroke();
+          cx.globalCompositeOperation = "source-over";
         }
       }
       if (corr > 0.72) {
