@@ -14,6 +14,7 @@ Animation requirement: no asset from this pack should be considered production-r
 | --- | --- | --- |
 | `Concepts/PetGrave_MemorialGarden_KeyArt_v1.png` | Overall visual direction and mood target | Reference |
 | `Menu/PetGrave_MenuBackdrop_MemorialGarden_v1.png` | Title/menu background | Wired into `index.html` |
+| `Creatures/milo.png` | First sliced Milo production candidate | Wired into `index.html` with procedural motion |
 | `Atlases/PetGrave_CreatureAtlas_MemorialGarden_v1.png` | Candidate source sheet for pets/spirits | Needs slicing and normalization |
 | `Atlases/PetGrave_PropsTerrainAtlas_MemorialGarden_v1.png` | Candidate source sheet for props/terrain | Needs slicing and normalization |
 
@@ -28,15 +29,16 @@ Animation requirement: no asset from this pack should be considered production-r
 ## Integration Plan
 
 1. Use the menu backdrop immediately.
-2. Review the creature and props atlases visually.
-3. Slice approved atlas items into the existing expected paths.
-4. Add animation coverage:
+2. Use `Creatures/milo.png` as the first small production slice.
+3. Review the remaining creature and props atlases visually.
+4. Slice approved atlas items into the existing expected paths.
+5. Add animation coverage:
    - Creatures: idle, move, hurt, and cast/interact.
    - Spirits: aura pulse, blink, and secondary float.
    - Props: lantern flicker, fire pulse, flower sway, water shimmer, mist drift, or bramble twitch.
-5. Normalize scale and anchors.
-6. Test boot, menu, gameplay, mobile controls, animation smoothness, and missing asset fallbacks.
-7. Only then replace or switch the live art root.
+6. Normalize scale and anchors.
+7. Test boot, menu, gameplay, mobile controls, animation smoothness, and missing asset fallbacks.
+8. Only then replace or switch the live art root.
 
 ## Approval Boundary
 

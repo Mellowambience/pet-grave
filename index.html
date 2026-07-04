@@ -644,6 +644,7 @@ function s2w(sx, sy) {
 
 const ART_PACK_ROOT = "Content/Art/Generated/GlowGarden_v2";
 const ART_ROOT = `${ART_PACK_ROOT}/Sprites`;
+const MEMORIAL_ART_ROOT = "Content/Art/Generated/MemorialGarden_v1";
 const VFX_ROOT = `${ART_PACK_ROOT}/VFX/spells`;
 const HD2D_ROOT = `${ART_PACK_ROOT}/HD2D`;
 const USE_HD2D_PROCEDURAL_CREATURES = true;
@@ -660,7 +661,7 @@ function loadGameArt(src) {
   return asset;
 }
 const CREATURE_ART = {
-  milo: loadGameArt(`${ART_ROOT}/Creatures/milo.png`),
+  milo: loadGameArt(`${MEMORIAL_ART_ROOT}/Creatures/milo.png`),
   pip: loadGameArt(`${ART_ROOT}/Creatures/pip.png`),
   lume: loadGameArt(`${ART_ROOT}/Creatures/lume.png`),
   mossback: loadGameArt(`${ART_ROOT}/Creatures/mossback.png`),
@@ -4581,8 +4582,8 @@ window.addEventListener("mousedown", () => { if (battle && battle.phase === "tim
 // ============================================================ ART
 // generic cute-creature painter (used in world + portraits)
 function drawCreatureSprite(g, spec, sx, sy, R, face, bob, deadly, evolved, alpha, actor) {
-  if (USE_HD2D_PROCEDURAL_CREATURES) return false;
   const id = spriteIdForSpec(spec);
+  if (USE_HD2D_PROCEDURAL_CREATURES && id !== "milo") return false;
   const asset = CREATURE_ART[id];
   if (!artReady(asset)) return false;
   const variant = actor && actor.variant && CREATURE_VARIANTS[actor.variant] ? variantDef(actor.variant) : null;
