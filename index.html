@@ -662,7 +662,7 @@ function loadGameArt(src) {
 }
 const CREATURE_ART = {
   milo: loadGameArt(`${MEMORIAL_ART_ROOT}/Creatures/milo.png`),
-  pip: loadGameArt(`${ART_ROOT}/Creatures/pip.png`),
+  pip: loadGameArt(`${MEMORIAL_ART_ROOT}/Creatures/pip.png`),
   lume: loadGameArt(`${ART_ROOT}/Creatures/lume.png`),
   mossback: loadGameArt(`${ART_ROOT}/Creatures/mossback.png`),
   ember: loadGameArt(`${ART_ROOT}/Creatures/ember.png`),
@@ -676,6 +676,7 @@ const CREATURE_ART_SCALE = {
   milo: 6.4, pip: 5.7, lume: 5.9, mossback: 6.1, ember: 6.1,
   puddle: 5.4, capkin: 5.8, starling: 5.9, fluffox: 5.9, mothlet: 5.9,
 };
+const IMPORTED_CREATURE_ART_IDS = new Set(["milo", "pip"]);
 const PROP_ART = {
   moss_home: loadGameArt(`${ART_ROOT}/Props/moss_home.png`),
   mush_home: loadGameArt(`${ART_ROOT}/Props/mush_home.png`),
@@ -4583,7 +4584,7 @@ window.addEventListener("mousedown", () => { if (battle && battle.phase === "tim
 // generic cute-creature painter (used in world + portraits)
 function drawCreatureSprite(g, spec, sx, sy, R, face, bob, deadly, evolved, alpha, actor) {
   const id = spriteIdForSpec(spec);
-  if (USE_HD2D_PROCEDURAL_CREATURES && id !== "milo") return false;
+  if (USE_HD2D_PROCEDURAL_CREATURES && !IMPORTED_CREATURE_ART_IDS.has(id)) return false;
   const asset = CREATURE_ART[id];
   if (!artReady(asset)) return false;
   const variant = actor && actor.variant && CREATURE_VARIANTS[actor.variant] ? variantDef(actor.variant) : null;

@@ -4,7 +4,7 @@
 
 Memorial Garden v1 art pack generated locally.
 
-The title/menu background is wired into `index.html` and verified in the browser. Milo is now sliced from the Memorial Garden creature atlas and wired as the first production creature candidate. The remaining creature and prop atlases are saved as source candidates, but are not yet sliced into production assets.
+The title/menu background is wired into `index.html` and verified in the browser. Milo and Pip are now sliced from the Memorial Garden creature atlas and wired as the first production creature candidates. The remaining creature and prop atlases are saved as source candidates, but are not yet sliced into production assets.
 
 Animation is now a production rule: every in-game visual should have authored animation or a lightweight procedural motion fallback before it is considered finished.
 
@@ -19,6 +19,7 @@ Files:
 - `Concepts/PetGrave_MemorialGarden_KeyArt_v1.png`
 - `Menu/PetGrave_MenuBackdrop_MemorialGarden_v1.png`
 - `Creatures/milo.png`
+- `Creatures/pip.png`
 - `Atlases/PetGrave_CreatureAtlas_MemorialGarden_v1.png`
 - `Atlases/PetGrave_PropsTerrainAtlas_MemorialGarden_v1.png`
 - `ART_PACK_MANIFEST.md`
@@ -32,7 +33,7 @@ Files:
 - Primary menu and mobile action controls now have responsive motion states.
 - Non-essential CSS animation respects reduced-motion preferences.
 - The title/menu overlay is fixed above the playfield so the animated backdrop is visible when the menu is open.
-- Milo now uses the Memorial Garden cropped creature PNG while the rest of the creature cast remains on the existing procedural renderer.
+- Milo and Pip now use Memorial Garden cropped creature PNGs while the rest of the creature cast remains on the existing procedural renderer.
 
 ## Visual Direction
 
@@ -72,10 +73,9 @@ Required for any imported production asset:
 
 ## Next Visual Pass
 
-1. Browser-test the Milo production slice on desktop and mobile.
-2. Tune Milo scale and anchor if it reads too large, too small, or too detached from the ground shadow.
+1. Browser-test the Milo/Pip production slices on desktop and mobile.
+2. Tune scale and anchors if either character reads too large, too small, or too detached from the ground shadow.
 3. Pick the next small subset:
-   - `pip`
    - `lume`
    - `campfire`
    - `lantern_posts`

@@ -15,6 +15,7 @@ Animation requirement: no asset from this pack should be considered production-r
 | `Concepts/PetGrave_MemorialGarden_KeyArt_v1.png` | Overall visual direction and mood target | Reference |
 | `Menu/PetGrave_MenuBackdrop_MemorialGarden_v1.png` | Title/menu background | Wired into `index.html` |
 | `Creatures/milo.png` | First sliced Milo production candidate | Wired into `index.html` with procedural motion |
+| `Creatures/pip.png` | Second sliced companion production candidate | Wired into `index.html` with procedural motion |
 | `Atlases/PetGrave_CreatureAtlas_MemorialGarden_v1.png` | Candidate source sheet for pets/spirits | Needs slicing and normalization |
 | `Atlases/PetGrave_PropsTerrainAtlas_MemorialGarden_v1.png` | Candidate source sheet for props/terrain | Needs slicing and normalization |
 
@@ -29,7 +30,7 @@ Animation requirement: no asset from this pack should be considered production-r
 ## Integration Plan
 
 1. Use the menu backdrop immediately.
-2. Use `Creatures/milo.png` as the first small production slice.
+2. Use `Creatures/milo.png` and `Creatures/pip.png` as the first small production slices.
 3. Review the remaining creature and props atlases visually.
 4. Slice approved atlas items into the existing expected paths.
 5. Add animation coverage:
