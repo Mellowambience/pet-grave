@@ -493,7 +493,7 @@
   <div id="b-actions">
     <button data-act="0">🍯 Offer Snack<small>1 · +trust</small></button>
     <button data-act="1">💃 Mimic Dance<small>2 · +trust, risky</small></button>
-    <button data-act="2">🐾 Milo Pounce<small>3 · −moxie, +fear</small></button>
+    <button data-act="2">🐾 Gravemoss Pounce<small>3 · −moxie, +fear</small></button>
     <button data-act="3">🍃 Soothe<small>4 · −fear, heal</small></button>
   </div>
 </div>
@@ -556,7 +556,7 @@
     <div class="role">a cozy game about</div>
     <div class="name">exploring, bonding, and <b>giving lost pets a place to rest</b></div>
     <div class="role">lost pets</div>
-    <div class="name">milo · pip · lume · mossback · ember<br>puddle · capkin · starling · fluffox · mothlet</div>
+    <div class="name">gravemoss · pip · lume · mossback · ember<br>puddle · capkin · starling · fluffox · mothlet</div>
     <div class="role">built with</div>
     <div class="name">canvas, web audio, and a great deal of care</div>
     <div class="divider"></div>
@@ -581,7 +581,7 @@
   <div id="over-panel">
     <h2>THE LANTERN DIMS</h2>
     <p id="over-stats"></p>
-    <p style="font-style:italic">Milo curls beside the stone until the lanterns wake again.</p>
+    <p style="font-style:italic">Gravemoss curls beside the stone until the lanterns wake again.</p>
     <button id="over-btn" onclick="respawn()">RISE AGAIN</button>
   </div>
 </div>
@@ -661,7 +661,7 @@ function loadGameArt(src) {
   return asset;
 }
 const CREATURE_ART = {
-  milo: loadGameArt(`${MEMORIAL_ART_ROOT}/Creatures/milo.png`),
+  milo: loadGameArt(`${MEMORIAL_ART_ROOT}/Creatures/gravepup.png`),
   pip: loadGameArt(`${MEMORIAL_ART_ROOT}/Creatures/pip.png`),
   lume: loadGameArt(`${ART_ROOT}/Creatures/lume.png`),
   mossback: loadGameArt(`${ART_ROOT}/Creatures/mossback.png`),
@@ -887,7 +887,7 @@ function harmonizePetColors(base, shade, core) {
 
 // ============================================================ species & content
 const SPECIES = {
-  milo:     { name: "Milo", base: "#9aa653", shade: "#53643a", core: "#ffd980", size: 11, ears: "leaf", antlers: true, tail: "wisp",
+  milo:     { name: "Gravemoss", base: "#9aa653", shade: "#53643a", core: "#ffd980", size: 11, ears: "leaf", antlers: true, tail: "wisp",
               lore: "Your companion. Sweet as moss honey — until something threatens you.", peaceful: true },
   pip:      { name: "Pip", base: "#ffd6e7", shade: "#c96b8d", core: "#ffd980", size: 8.5, ears: "bunny", tail: "puff", speed: 2.4,
               temper: "skittish", lore: "A jumpy tuft of pink. Bonds with anyone patient enough to sit still.", peaceful: true },
@@ -971,7 +971,7 @@ const NPCS_DEF = [
   { id: "fern", name: "Fern", color: "#ffd166", shade: "#c77f1e", home: { x: 3, y: -3 },
     role: "botanist",
     lines: ["The glowcaps bloom brighter before a surge. Watch the dirt.",
-            "Your Milo's been eyeing my satchel. Tell it the moths are NOT snacks.",
+            "Your Gravemoss has been eyeing my satchel. Tell it the moths are NOT snacks.",
             "Tending tip: walk slow, take only what shimmers."],
     bubbles: ["hm, fascinating roots…", "the moths like these", "shimmer-shimmer ✿"] },
   { id: "bram", name: "Bram", color: "#9d8df1", shade: "#5f4bb6", home: { x: -3, y: 3 },
@@ -1009,7 +1009,7 @@ const TALENTS = {
     { n: "Warm Blood",    d: "regenerate 0.6 hp/s, always",     f: () => G.heartRegen += 0.6 },
     { n: "Kind Eyes",     d: "duels build trust 30% faster",    f: () => G.trustMul *= 1.3 }] },
   fang:   { name: "Fang",   ico: "🦷", tiers: [
-    { n: "Whetted Teeth", d: "Milo deals +15% damage",          f: () => G.fangMilo *= 1.15 },
+    { n: "Whetted Teeth", d: "Gravemoss deals +15% damage",     f: () => G.fangMilo *= 1.15 },
     { n: "Pack Hunger",   d: "your pack deals +15% damage",     f: () => G.fangAlly *= 1.15 },
     { n: "Glass Petals",  d: "class & nova damage +25%",        f: () => G.classDmgMul *= 1.25 }] },
   wander: { name: "Wander", ico: "🧭", tiers: [
@@ -1020,14 +1020,14 @@ const TALENTS = {
 // infinite, repeatable mastery — absorbs surplus talent points after the 3 fixed tiers
 const MASTERY = {
   heart:  { n: "Heart Mastery",  d: "+6 max HP",                     f: () => { G.hpMax += 6; G.hp += 6; } },
-  fang:   { n: "Fang Mastery",   d: "+4% Milo, pack & class damage", f: () => { G.classDmgMul *= 1.04; G.fangAlly *= 1.04; G.fangMilo *= 1.04; } },
+  fang:   { n: "Fang Mastery",   d: "+4% Gravemoss, pack & class damage", f: () => { G.classDmgMul *= 1.04; G.fangAlly *= 1.04; G.fangMilo *= 1.04; } },
   wander: { n: "Wander Mastery", d: "+2% speed & +3% XP",            f: () => { G.speedMul *= 1.02; G.xpMul *= 1.03; } },
 };
 
 const UPGRADES = [
   { id: "paws",    ico: "🐾", name: "Swift Paws",   desc: "+14% move speed. Zoomies are a survival skill.", apply: () => G.speedMul *= 1.14 },
-  { id: "fangs",   ico: "🦷", name: "Sharper Fangs", desc: "Milo's pounce hits 30% harder. He's very proud.", deadly: true, apply: () => G.miloDmgMul *= 1.3 },
-  { id: "pounce",  ico: "💨", name: "Quick Pounce", desc: "Milo attacks 20% faster. Blink and you miss it.", deadly: true, apply: () => G.miloCdMul *= 0.8 },
+  { id: "fangs",   ico: "🦷", name: "Sharper Fangs", desc: "Gravemoss pounces 30% harder. He is very proud.", deadly: true, apply: () => G.miloDmgMul *= 1.3 },
+  { id: "pounce",  ico: "💨", name: "Quick Pounce", desc: "Gravemoss attacks 20% faster. Blink and you miss it.", deadly: true, apply: () => G.miloCdMul *= 0.8 },
   { id: "lantern", ico: "🏮", name: "Moth Lantern", desc: "+45% glow-mote pickup radius. The light loves you.", apply: () => G.magnetMul *= 1.45 },
   { id: "pack",    ico: "🫂", name: "Pack Tactics", desc: "Your bonded pack hits 20% harder, together.", deadly: true, apply: () => G.allyDmgMul *= 1.2 },
   { id: "nova",    ico: "🌸", name: "Nova Bloom",   desc: "Every 8s, a petal shockwave damages nearby foes. Stacks.", deadly: true, apply: () => G.nova++ },
@@ -1540,7 +1540,7 @@ function toast(html, deadly) {
   setTimeout(() => { d.style.opacity = "0"; d.style.transition = "opacity .4s"; setTimeout(() => d.remove(), 450); }, 2600);
 }
 discover("milo");
-log("You and Milo stepped into Pet Grave.");
+log("You and Gravemoss stepped into Pet Grave.");
 
 // ============================================================ AUDIO (fully procedural — no assets)
 const Au = {
@@ -2059,7 +2059,7 @@ function renderHub() {
       if (col.children.length) d.appendChild(col);
       b.appendChild(d);
     };
-    mk("milo", `Milo — stage ${miloStage()}`,
+    mk("milo", `Gravemoss — stage ${miloStage()}`,
       `pounce ${Math.round(milo.dmgBase * G.miloDmgMul * (1 + G.level * .12))} dmg · every ${(milo.cdBase * G.miloCdMul).toFixed(1)}s`,
       [{ t: "loyal" }, { t: "pouncer", d: true }, miloStage() > 1 ? { t: "evolved", d: true } : { t: "still growing" }]);
     b.insertAdjacentHTML("beforeend", `<h4 style="margin:14px 0 8px;color:var(--mint);letter-spacing:2px">ACTIVE PACK · ${allies.length}/${G.maxAllies}</h4>`);
@@ -2283,7 +2283,7 @@ function openLevelUp() {
       u.apply(); log(`Chose ${u.name}.`); toast(`${u.ico} <b>${u.name}</b>`, u.deadly);
       Au.sfx("ui"); saveGame();
       el("lvl").classList.remove("open"); G.paused = uiOpen(); updateHUD();
-      if (G.level === 5 || G.level === 10) { toast("🌟 <b>Milo evolved!</b>", true); log("Milo evolved. He seems… toothier.", true); burst(milo.x, milo.y, "#7ee8b2", 24, 4); }
+      if (G.level === 5 || G.level === 10) { toast("🌟 <b>Gravemoss evolved!</b>", true); log("Gravemoss evolved. He seems toothier.", true); burst(milo.x, milo.y, "#7ee8b2", 24, 4); }
     });
     cdiv.appendChild(d);
   }
@@ -3239,7 +3239,7 @@ function hurtEnemy(e, dmg, fromMilo) {
       spawnLoot(e.x, e.y, "item", rollItem(), 2, "rare");
       spawnLoot(e.x, e.y, "gear", rollGear(), 1, "legendary");
     }
-    if (G.kills === 1) log("First corrupted creature destroyed. Milo looked thrilled. Concerning.", true);
+    if (G.kills === 1) log("First corrupted creature destroyed. Gravemoss looked thrilled. Concerning.", true);
   }
 }
 function gameOver() {
@@ -3928,7 +3928,7 @@ function say(n, text) { bubbles.push({ n, text, t: 0 }); }
 const NPC_REACT = {
   bond:  { fern: ["a new friend! hello, little one ✿", "the garden grows kinder"], bram: ["another to guard. good.", "it'll earn its keep, i hope"], lyra: ["the codex remembers this one", "a new name for the legends"] },
   plant: { fern: ["a memory tree! it'll mend the soil", "roots like that heal everything"], bram: ["safe ground out there now. smart.", "a place to fall back to"], lyra: ["the old groves return, one by one"] },
-  level: { fern: ["you're glowing brighter today", "milo's proud, i can tell"], bram: ["stronger. the night fears you", "good form out there"], lyra: ["your legend lengthens, dear"] },
+  level: { fern: ["you're glowing brighter today", "Gravemoss is proud, i can tell"], bram: ["stronger. the night fears you", "good form out there"], lyra: ["your legend lengthens, dear"] },
   home:  { fern: ["welcome back to the fire ✿", "tea's warm if you want it"], bram: ["you made it. you always do", "rest. you've earned it"], lyra: ["sit — i've a tale for you"] },
   night: { fern: ["stay near the light, please", "i don't like the dark out there"], bram: ["eyes up. they're coming", "to the fire, all of you!"], lyra: ["the dream thins at night…"] },
   dawn:  { fern: ["morning! the glowcaps opened", "smell that? safe air"], bram: ["we held. good night's work", "another dawn earned"], lyra: ["the dream steadies by day"] },
@@ -3947,7 +3947,7 @@ function npcReact(key) {
 
 // ============================================================ BONDING DUEL (JRPG battle scene)
 // Twist: you don't fight to capture — you negotiate. Fill TRUST before FEAR maxes.
-// Proud creatures (high MOXIE) ignore kindness until Milo humbles them. Violence is
+// Proud creatures (high MOXIE) ignore kindness until Gravemoss humbles them. Violence is
 // a tool here, not the goal — overuse it and they bolt.
 let battle = null;
 const bfx = [];   // screen-space battle particles
@@ -4035,7 +4035,7 @@ function applyAction(i, mult, match, tier) {
     b.fear += temper === "skittish" ? 20 : 12;
     let extra = "";
     if (b.moxie === 0 && !b.humbled) { b.humbled = true; b.trust += G.trustMul * 15; extra = " it's humbled — and oddly respectful. (+15 trust)"; }
-    setBText(`milo pounces! (−${m} moxie, +fear)${extra}`);
+    setBText(`Gravemoss pounces! (−${m} moxie, +fear)${extra}`);
     b.pLunge = 1; b.cShake = 1;
     bSpark(anchors.B.x, anchors.B.y, "#ff5d73", 12);
   } else { // soothe
@@ -4130,8 +4130,8 @@ function enterEnd(outcome) {
     setTimeout(spawnCritter, 5000);
     log(`A ${b.spec.name} fled the duel.`, true);
   } else if (outcome === "faint") {
-    setBText(`your knees give out. milo drags you back to the memorial fire…`);
-    log("You fainted mid-duel. Milo dragged you home.", true);
+    setBText(`your knees give out. Gravemoss drags you back to the memorial fire...`);
+    log("You fainted mid-duel. Gravemoss dragged you home.", true);
   } else { // retreat
     setBText(`you back away slowly. the <b>${b.spec.name}</b> watches you go.`);
     log(`You retreated from a ${b.spec.name} duel.`);
@@ -4244,7 +4244,7 @@ const ALLY_ABIL = {
 // ============================================================ PROCEDURAL ROSTER
 // No Man's Sky-style generation, kept on-style: each run rolls a fresh wild roster from
 // the SAME curated part vocabulary + style-guide palettes the hand-authored creatures use,
-// so they render through Embermoss Soft-Cel and stay recognizably "Milo." The original
+// so they render through Embermoss Soft-Cel and stay recognizably Pet Grave. The original
 // named species remain in SPECIES as the ability/temper archetype library (just swapped out
 // of the active wild list). The roster persists in the save; a fresh page = a fresh world.
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -6203,7 +6203,7 @@ function drawEnvironmentDepthProp(p) {
   });
 }
 
-function bondedFriends() { return [{ sp: "milo", name: "Milo" }, ...allies, ...reserve]; }
+function bondedFriends() { return [{ sp: "milo", name: "Gravemoss" }, ...allies, ...reserve]; }
 function villagePropArtForSpecies(sp) {
   if (sp === "pip" || sp === "capkin") return { key: "flowers", h: 33 };
   if (sp === "lume" || sp === "puddle") return { key: "moon_pool", h: 44 };
@@ -7652,7 +7652,7 @@ window.__milo = {
 </script>
 <script>
 /* ================================================================
-   THE RIFT — Riftweaver systems woven into Milo: Pet Grave.
+   THE RIFT — Riftweaver systems woven into Pet Grave.
    The dream frays. You may let it fall. Friends, village, skills,
    gear and level ALWAYS survive — only the dream itself re-rolls,
    and it remembers how you lived in the last one.
@@ -7693,12 +7693,12 @@ window.__milo = {
     deep_breath:  { name: "Deep Breath",  desc: "+20 max HP, right now (stacks)." },
   };
   const WHISPERS = {
-    w1: ["💜 Milo: \"The air is doing the wobbly thing. Can you feel the seam?\"",
-         "💜 Milo: \"The dream is getting thin at the edges. I like the edges.\""],
-    w2: ["💜 Milo: \"The sky has a loose thread. I keep wanting to pull it.\"",
-         "💜 Milo: \"It's ripe. That's the word for a dream like this. Ripe.\""],
-    w3: ["💜 Milo: \"Pull the thread. Pull the— sorry. The wind said that. The wind.\"",
-         "💜 Milo: \"Dreams get tired of standing. Be kind. Let it sit down.\""],
+    w1: ["💜 Gravemoss: \"The air is doing the wobbly thing. Can you feel it?\"",
+         "💜 Gravemoss: \"The dream is getting thin at the edges. I like the edges.\""],
+    w2: ["💜 Gravemoss: \"The sky has a loose thread. I keep wanting to pull it.\"",
+         "💜 Gravemoss: \"It's ripe. That's the word for a dream like this. Ripe.\""],
+    w3: ["💜 Gravemoss: \"Pull the thread. Pull the- sorry. The wind said that. The wind.\"",
+         "💜 Gravemoss: \"Dreams get tired of standing. Be kind. Let it sit down.\""],
   };
   const pick = a => a[(Math.random() * a.length) | 0];
 
@@ -7799,7 +7799,7 @@ window.__milo = {
     if (!inFrayWorld()) { mt += dt; if (mt > 0.5) { mt = 0; meter(); } return; }
     // whispers
     const r = G.rift;
-    if (!r.w1 && r.instab >= 40) { r.w1 = true; toast(pick(WHISPERS.w1)); log("Milo is watching the seams.", true); }
+    if (!r.w1 && r.instab >= 40) { r.w1 = true; toast(pick(WHISPERS.w1)); log("Gravemoss is watching the edges.", true); }
     if (!r.w2 && r.instab >= 70) { r.w2 = true; toast(pick(WHISPERS.w2), true); }
     if (!r.w3 && r.instab >= 90) { r.w3 = true; toast(pick(WHISPERS.w3), true); }
     if (r.instab >= 100) openRift(true);
@@ -7850,7 +7850,7 @@ window.__milo = {
       "Sleep now, little dream. You were good.",
       "Nothing loved is ever lost. It is only re-seeded.",
       "Somewhere, the next meadow is already practicing your name.",
-      "Milo holds the last light, and the last light holds you.",
+      "Gravemoss holds the last light, and the last light holds you.",
     ]));
     return L;
   }
