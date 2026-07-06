@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pet Grave v0.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pet Grave — tend a moonlit graveyard for lost pet spirits. Befriend them by day, defend them by night. A cozy-haunted browser game, no install needed.">
+<meta name="theme-color" content="#100b16">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕯️</text></svg>">
+<title>Pet Grave v0.2</title>
 <style>
   :root {
     --mint: #a7f0cf; --rose: #ff7f9d; --lav: #c8b6ff; --gold: #f0d08a;
@@ -315,6 +319,25 @@
     border-radius: 10px; font-size: 13px; cursor: pointer; }
   #credits-panel button:hover { background: rgba(126,232,178,.1); }
 
+  /* how to play */
+  #help-panel { width: min(560px, calc(100vw - 28px)); box-sizing: border-box; max-height: 86vh; overflow-y: auto;
+    background: linear-gradient(160deg, rgba(38,29,54,.9), rgba(22,15,32,.84));
+    border: 1px solid rgba(255,248,220,.16); border-radius: 20px; padding: 30px 34px;
+    box-shadow: 0 34px 100px rgba(5,3,12,.54), inset 0 1px 0 rgba(255,255,255,.08); }
+  #help-panel::-webkit-scrollbar { width: 8px; }
+  #help-panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  #help-panel h2 { color: var(--mint); letter-spacing: 4px; margin: 0 0 4px; font-size: 20px; text-align: center; }
+  #help-panel .sub { color: var(--dim); letter-spacing: 3px; font-size: 11px; text-transform: uppercase; margin-bottom: 18px; text-align: center; }
+  #help-panel h3 { font-size: 11px; letter-spacing: 3px; color: var(--lav); margin: 16px 0 8px; text-transform: uppercase; }
+  .help-step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; font-size: 12.5px; line-height: 1.5; color: rgba(241,234,246,.88); }
+  .help-step .ico { font-size: 16px; width: 22px; text-align: center; flex: none; }
+  .help-keys { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px; }
+  .help-keys kbd { font-family: inherit; color: var(--gold); font-weight: 700; white-space: nowrap; text-align: right; }
+  .help-keys span { color: var(--dim); }
+  #help-panel > button { display: block; margin: 18px auto 0; background: none; border: 1px solid var(--mint);
+    color: var(--mint); font-family: inherit; letter-spacing: 2px; padding: 10px 28px; border-radius: 10px; font-size: 13px; cursor: pointer; }
+  #help-panel > button:hover { background: rgba(126,232,178,.1); }
+
   /* save export/import */
   #save-port-panel { width: min(520px, calc(100vw - 28px)); box-sizing: border-box;
     background: linear-gradient(160deg, rgba(38,29,54,.9), rgba(22,15,32,.84));
@@ -396,11 +419,11 @@
   }
   @media (hover: none), (pointer: coarse), (max-width: 820px) {
     #mobile-controls { display: flex; }
-    #hint { bottom: calc(142px + env(safe-area-inset-bottom)); max-width: calc(100vw - 24px); }
+    #hint { bottom: calc(198px + env(safe-area-inset-bottom)); max-width: calc(100vw - 24px); }
     #hud { transform: scale(.78); }
     #toasts { top: 64px; }
-    #b-actions { bottom: calc(172px + env(safe-area-inset-bottom)); flex-wrap: wrap; justify-content: center; max-width: 92vw; }
-    #b-text { bottom: calc(250px + env(safe-area-inset-bottom)); min-width: min(330px, 88vw); }
+    #b-actions { bottom: calc(228px + env(safe-area-inset-bottom)); flex-wrap: wrap; justify-content: center; max-width: 92vw; }
+    #b-text { bottom: calc(306px + env(safe-area-inset-bottom)); min-width: min(330px, 88vw); }
   }
 </style>
 </head>
@@ -434,6 +457,8 @@
     <button class="mobile-btn" data-action="limit">LIMIT</button>
     <button class="mobile-btn" data-action="hub">HUB</button>
     <button class="mobile-btn" data-action="recall">HOME</button>
+    <button class="mobile-btn" data-action="tree">🌳<br>TREE</button>
+    <button class="mobile-btn" data-action="havens">🗺<br>PATH</button>
   </div>
 </div>
 
@@ -508,13 +533,14 @@
     <button class="menu-btn" id="m-sound">🔊 &nbsp;SOUND: ON</button>
     <button class="menu-btn" id="m-quality">✨ &nbsp;QUALITY: AUTO</button>
     <button class="menu-btn" id="m-filter">🎨 &nbsp;LOOK: STORYBOOK</button>
+    <button class="menu-btn" id="m-help">❔ &nbsp;HOW TO PLAY</button>
     <button class="menu-btn" id="m-credits">✦ &nbsp;CREDITS</button>
     <button class="menu-btn" id="m-export" style="display:none">📤 &nbsp;EXPORT SAVE</button>
     <button class="menu-btn" id="m-import" style="display:none">📥 &nbsp;IMPORT SAVE</button>
     <button class="menu-btn" id="m-hardcore" style="display:none" aria-hidden="true"></button>
     <button class="menu-btn danger" id="m-reset" style="display:none">⚠ &nbsp;RESET SAVE</button>
-    <div class="ctrl"><b>WASD</b>/tap move · <b>E</b> comfort / tend / read epitaph · <b>Q</b> limit break · <b>T</b> plant memory tree · <b>G</b> lantern travel · <b>R</b> recall · <b>Tab</b> ledger · <b>M</b> mute · <b>Esc</b> menu · mobile buttons appear on touch screens</div>
-    <div class="ver">Pet Grave v0.1 · saves locally in this browser</div>
+    <div class="ctrl"><b>WASD</b>/tap move · <b>E</b> interact · <b>Tab</b> ledger · <b>Esc</b> menu — full controls under <b>HOW TO PLAY</b></div>
+    <div class="ver">Pet Grave v0.2 · saves locally in this browser</div>
   </div>
 </div>
 
@@ -565,6 +591,45 @@
       keep the lanterns lit.
     </p>
     <button onclick="closeCredits()">↩ &nbsp;BACK</button>
+  </div>
+</div>
+
+<div id="help" class="overlay">
+  <div id="help-panel">
+    <h2>❔ HOW TO PLAY</h2>
+    <div class="sub">a gentle guide for gravekeepers</div>
+    <h3>Your first day</h3>
+    <div class="help-step"><div class="ico">☀</div><div><b>By day</b>, wander out and stand near a lost pet — press <b>E</b> to begin a bonding duel. Snacks and soothing win their trust; they'll follow you home.</div></div>
+    <div class="help-step"><div class="ico">🕯</div><div><b>At home</b>, the memorial fire heals you. Press <b>E</b> by the fire for upgrades, talk to the villagers, and open your ledger with <b>Tab</b>.</div></div>
+    <div class="help-step"><div class="ico">🌑</div><div><b>At night</b>, corruption surges from the dark. Fight beside your bonded pets, keep the lanterns lit, and hold on until dawn.</div></div>
+    <h3>Wandering</h3>
+    <div class="help-keys">
+      <kbd>WASD / tap</kbd><span>move (tap or click the ground to walk there)</span>
+      <kbd>E</kbd><span>comfort · tend · talk · duel — whatever is nearest</span>
+      <kbd>Space / right-click</kbd><span>cast your spell</span>
+      <kbd>Shift</kbd><span>dash</span>
+      <kbd>Q</kbd><span>limit break (when the amber bar is full)</span>
+      <kbd>C (hold)</kbd><span>command wheel — direct your pets</span>
+      <kbd>T</kbd><span>plant a memory tree (a new safe haven)</span>
+      <kbd>G</kbd><span>lantern paths — fast travel between havens</span>
+      <kbd>R</kbd><span>recall home</span>
+      <kbd>Tab</kbd><span>ledger — team, village, skills, codex, talents, bag, journal</span>
+      <kbd>scroll</kbd><span>zoom</span>
+    </div>
+    <h3>In a bonding duel</h3>
+    <div class="help-keys">
+      <kbd>1–4 / click</kbd><span>choose an approach — build trust before fear wins</span>
+      <kbd>Space / tap</kbd><span>hit the timing mark</span>
+      <kbd>Esc</kbd><span>back away gently</span>
+    </div>
+    <h3>Comfort &amp; care</h3>
+    <div class="help-keys">
+      <kbd>M</kbd><span>mute</span>
+      <kbd>F</kbd><span>change the look (storybook · luminous · haunted · ink)</span>
+      <kbd>5</kbd><span>rolling-hills terrain, on/off</span>
+      <kbd>Esc</kbd><span>pause menu</span>
+    </div>
+    <button onclick="closeHelp()">↩ &nbsp;BACK</button>
   </div>
 </div>
 
@@ -1830,7 +1895,8 @@ window.addEventListener("keydown", e => {
   if (k === "c" && !e.repeat) { if (openCommandWheel()) e.preventDefault(); return; }
   if (k === "escape") {
     if (commandWheel.open) { closeCommandWheel(false); return; }
-    if (el("credits").classList.contains("open")) closeCredits();
+    if (el("help").classList.contains("open")) closeHelp();
+    else if (el("credits").classList.contains("open")) closeCredits();
     else if (el("havens").classList.contains("open")) closeHavens();
     else if (el("hub").classList.contains("open") || el("camp").classList.contains("open") || dlg.open) closeOverlays();
     else if (el("win").classList.contains("open")) closeWin();
@@ -1843,7 +1909,7 @@ window.addEventListener("keydown", e => {
   if (k === "r") { if (!uiOpen()) startRecall(); return; }
   if (k === "q") { if (!uiOpen()) startLimitBreak(); return; }
   if (k === "t") { if (!uiOpen()) plantWorldTree(); return; }
-  if (k === "g") { if (el("havens").classList.contains("open")) closeHavens(); else openHavens(); return; }
+  if (k === "g") { if (el("havens").classList.contains("open")) closeHavens(); else if (!uiOpen()) openHavens(); return; }
   keys.add(k);
 });
 window.addEventListener("keyup", e => {
@@ -1896,11 +1962,14 @@ function runMobileAction(action) {
   }
   if (action === "hub") { toggleHub(); return; }
   if (action === "interact") { tryTalk(); return; }
+  if (action === "havens") { if (el("havens").classList.contains("open")) { closeHavens(); return; } }
   if (uiOpen()) return;
   if (action === "cast") { activeCast(); return; }
   if (action === "dodge") { dodge(); return; }
   if (action === "limit") { startLimitBreak(); return; }
   if (action === "recall") { startRecall(); return; }
+  if (action === "tree") { plantWorldTree(); return; }
+  if (action === "havens") { openHavens(); return; }
 }
 
 document.querySelectorAll("#mobile-controls [data-key]").forEach(btn => {
@@ -1925,7 +1994,7 @@ document.querySelectorAll("#mobile-controls [data-action]").forEach(btn => {
 
 // ============================================================ UI: hub / levelup / dialogue
 let hubTab = "team";
-const uiOpen = () => el("hub").classList.contains("open") || el("lvl").classList.contains("open") || el("over").classList.contains("open") || el("camp").classList.contains("open") || el("menu").classList.contains("open") || el("win").classList.contains("open") || el("credits").classList.contains("open") || el("save-port").classList.contains("open") || el("havens").classList.contains("open") || el("event").classList.contains("open") || dlg.open || !!battle;
+const uiOpen = () => el("hub").classList.contains("open") || el("lvl").classList.contains("open") || el("over").classList.contains("open") || el("camp").classList.contains("open") || el("menu").classList.contains("open") || el("win").classList.contains("open") || el("credits").classList.contains("open") || el("help").classList.contains("open") || el("save-port").classList.contains("open") || el("havens").classList.contains("open") || el("event").classList.contains("open") || dlg.open || !!battle;
 const ART_FILTERS = ["storybook", "luminous", "haunted", "ink"];
 function cycleArtFilter() {
   const i = ART_FILTERS.indexOf(G.artFilter);
@@ -1996,6 +2065,9 @@ function closeWin() { el("win").classList.remove("open"); G.paused = uiOpen(); A
 function showCredits() { el("credits").classList.add("open"); el("credits-panel").scrollTop = 0; G.paused = true; Au.sfx("ui"); }
 function closeCredits() { el("credits").classList.remove("open"); G.paused = uiOpen(); Au.sfx("ui"); }
 el("m-credits").addEventListener("click", () => { Au.start(); showCredits(); });
+function showHelp() { el("help").classList.add("open"); el("help-panel").scrollTop = 0; G.paused = true; Au.sfx("ui"); }
+function closeHelp() { el("help").classList.remove("open"); G.paused = uiOpen(); Au.sfx("ui"); }
+el("m-help").addEventListener("click", () => { Au.start(); showHelp(); });
 el("m-export").addEventListener("click", () => { Au.start(); openSavePort("export"); });
 el("m-import").addEventListener("click", () => { Au.start(); openSavePort("import"); });
 refreshMenuButtons();
@@ -3717,8 +3789,8 @@ function update(dt) {
   for (const n of npcs) {
     n.bob += dt * 4; n.stateT -= dt; n.chatCd -= dt;
     const surging = !!G.surge;
-    if (surging && n.state !== "flee") { n.state = "flee"; n.tx = n.def.home.x; n.ty = n.def.home.y; say(n, "surge! to camp!"); }
-    if (!surging && n.state === "flee") { n.state = "idle"; n.stateT = rand(1, 2); }
+    if (surging && n.state !== "flee" && n.state !== "shelter") { n.state = "flee"; n.tx = n.def.home.x; n.ty = n.def.home.y; say(n, "surge! to camp!"); }
+    if (!surging && (n.state === "flee" || n.state === "shelter")) { n.state = "idle"; n.stateT = rand(1, 2); }
     if (n.state === "idle" && n.stateT <= 0) {
       const r = Math.random();
       const night = G.phase === "night";
@@ -3750,7 +3822,8 @@ function update(dt) {
         }
         if (n.greet) { const f = n.fam || 0; say(n, f >= 3 ? "good to see you, friend" : "oh— hello there"); n.greet = false; }
         n.chatWith = null;
-        n.state = "idle"; n.stateT = rand(1.5, 3.5);
+        if (n.state === "flee" && surging) { n.state = "shelter"; }   // hunker by the fire until the surge ends
+        else { n.state = "idle"; n.stateT = rand(1.5, 3.5); }
       } else {
         const sp = n.state === "flee" ? 3.4 : 1.5;
         n.x += (n.tx - n.x) / d * sp * dt; n.y += (n.ty - n.y) / d * sp * dt;
